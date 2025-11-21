@@ -19,6 +19,12 @@ venv/
 staticfiles/
 media/
 
+# Git objects (large files)
+.git/objects/
+
+# Node modules
+node_modules/
+
 # IDE
 .vscode/
 .idea/
