@@ -615,24 +615,38 @@ def manage_sections(request):
 
     if request.method == 'POST':
         # CREATE NEW SECTION
-        if 'create_section' in request.POST:
+        if request.POST.get('action') == 'create_section':
             department_id = request.POST.get('department')
             course_id = request.POST.get('course')
             section_name = request.POST.get('section_name')
             year_level = request.POST.get('year_level')
 
-            if department_id and course_id and section_name:
+            print(f"DEBUG: Creating section - dept: {department_id}, course: {course_id}, name: {section_name}, year: {year_level}")
+
+            if not department_id:
+                messages.error(request, 'Please select a department.')
+                return redirect('manage_sections')
+            if not course_id:
+                messages.error(request, 'Please select a course.')
+                return redirect('manage_sections')
+            if not section_name:
+                messages.error(request, 'Please enter a section name.')
+                return redirect('manage_sections')
+
+            try:
                 course = get_object_or_404(Course, id=course_id)
                 Section.objects.create(
                     course=course, 
                     section_name=section_name, 
-                    year_level=year_level or 1
+                    year_level=int(year_level) if year_level else 1
                 )
                 messages.success(request, f'Section "{section_name}" created successfully!')
-                return redirect('manage_sections')
+            except Exception as e:
+                messages.error(request, f'Error creating section: {str(e)}')
+            return redirect('manage_sections')
         
         # EDIT SECTION
-        elif 'edit_section' in request.POST:
+        elif request.POST.get('action') == 'edit_section':
             section_id = request.POST.get('section_id')
             course_id = request.POST.get('course')
             section_name = request.POST.get('section_name')
@@ -651,7 +665,7 @@ def manage_sections(request):
                 return redirect('manage_sections')
         
         # DELETE SECTION
-        elif 'delete_section' in request.POST:
+        elif request.POST.get('action') == 'delete_section':
             section_id = request.POST.get('section_id')
             
             if section_id:
