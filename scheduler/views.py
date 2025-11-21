@@ -614,8 +614,12 @@ def manage_sections(request):
         sections = paginator.page(paginator.num_pages)
 
     if request.method == 'POST':
+        print(f"DEBUG: POST request received with data: {dict(request.POST)}")
+        action = request.POST.get('action')
+        print(f"DEBUG: Action is: {action}")
+        
         # CREATE NEW SECTION
-        if request.POST.get('action') == 'create_section':
+        if action == 'create_section':
             department_id = request.POST.get('department')
             course_id = request.POST.get('course')
             section_name = request.POST.get('section_name')
@@ -674,6 +678,12 @@ def manage_sections(request):
                 section.delete()
                 messages.success(request, f'Section "{section_name}" deleted successfully!')
                 return redirect('manage_sections')
+        
+        # FALLBACK - catch any unhandled POST
+        else:
+            print(f"DEBUG: Unhandled POST action: {action}")
+            messages.warning(request, f'Unknown action received: {action}. Please try again.')
+            return redirect('manage_sections')
     
     return render(request, 'scheduler/admin/manage_sections.html', {
         'departments': departments,
