@@ -1,0 +1,565 @@
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Instructor Dashboard | A.C.E. Scheduling System</title>
+    <link rel="icon" type="image/png" href="{% static 'scheduler/images/Automated_Class_Scheduling_Logo-removebg-preview.png' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="{% static 'scheduler/css/admin/dashboard.css' %}" />
+    <link rel="stylesheet" href="{% static 'scheduler/css/admin/manage_curriculum.css' %}" />
+    <link rel="stylesheet" href="{% static 'scheduler/css/admin/manage_rooms.css' %}" />
+    <link rel="stylesheet" href="{% static 'scheduler/css/admin/darkmode.css' %}">
+    <script src="{% static 'scheduler/js/global_darkmode.js' %}" defer></script>
+    <script src="{% static 'scheduler/js/script.js' %}"></script>
+    <style>
+        /* Additional responsive styles for instructor dashboard */
+        @media (max-width: 767px) {
+            .cards-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .dashboard-greeting h2 {
+                font-size: 1.5rem;
+            }
+            .navbar {
+                padding: 16px 20px;
+                padding-left: 70px;
+            }
+            .card {
+                margin: 16px;
+                padding: 20px;
+            }
+            .schedule-table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .schedule-table {
+                min-width: 800px;
+            }
+        }
+        @media (max-width: 480px) {
+            .main-content {
+                padding-top: 70px;
+            }
+            .dashboard-greeting {
+                padding: 20px 16px;
+            }
+            .card {
+                margin: 12px;
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Hamburger Menu Button -->
+    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle Navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar Overlay (for mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div>
+            <div class="sidebar-header">
+                <img src="{% static 'scheduler/images/Automated_Class_Scheduling_Logo-removebg-preview.png' %}" alt="Logo">
+                <div class="logo-text">A.C.E <span>Sched</span></div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{% url 'instructor_dashboard' %}" class="active"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+            </nav>
+        </div>
+        <a href="#" class="logout-btn" onclick="openModal('logoutModal')"><i class="fas fa-sign-out-alt"></i><span> Logout</span></a>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Greeting Section -->
+        <div class="dashboard-greeting">
+            <div class="greeting-text">
+                <h2><span>Good Day!</span> {{ instructor.user.get_full_name }}</h2>
+                <p>Your teaching schedule and performance summary</p>
+            </div>
+        </div>
+
+        <div class="navbar">
+            <div class="navbar-brand">Instructor Dashboard</div>
+            
+            <!-- Profile Section -->
+            <div class="profile-section">
+                <div class="profile-trigger" id="profileTrigger">
+                    <div class="profile-avatar">
+                        <span id="avatarInitials">{{ instructor.user.username.0|upper }}</span>
+                        <img id="avatarImage" src="" alt="Profile" style="display: none;">
+                    </div>
+                    <div class="profile-info">
+                        <div class="profile-name">{{ instructor.user.get_full_name }}</div>
+                        <div class="profile-role">Instructor</div>
+                    </div>
+                    <i class="fas fa-chevron-down profile-arrow"></i>
+                </div>
+
+                <!-- Dropdown Menu -->
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="dropdown-item" onclick="openModal('profileModal')">
+                        <i class="fas fa-user"></i>
+                        <span>Profile</span>
+                    </div>
+                    <div class="dropdown-item" onclick="openModal('settingsModal')">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </div>
+                    <div class="dropdown-item logout" onclick="openModal('logoutModal')">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats grid -->
+        <div class="cards-grid">
+            <!-- Total Subjects -->
+            <div class="stat-card">
+                <div class="chart-mini">
+                    <canvas id="chart_subjects" width="86" height="86"></canvas>
+                </div>
+                <div class="stat-body">
+                    <div class="stat-title">Subjects</div>
+                    <div class="stat-value"><span class="counter" data-target="{{ total_subjects|default:0 }}">0</span></div>
+                </div>
+                <i class="fas fa-book"></i>
+            </div>
+
+            <!-- Sections -->
+            <div class="stat-card">
+                <div class="chart-mini">
+                    <canvas id="chart_sections" width="86" height="86"></canvas>
+                </div>
+                <div class="stat-body">
+                    <div class="stat-title">Sections</div>
+                    <div class="stat-value"><span class="counter" data-target="{{ total_sections|default:0 }}">0</span></div>
+                </div>
+                <i class="fas fa-layer-group"></i>
+            </div>
+
+            <!-- Total Hours -->
+            <div class="stat-card">
+                <div class="chart-mini">
+                    <canvas id="chart_hours" width="86" height="86"></canvas>
+                </div>
+                <div class="stat-body">
+                    <div class="stat-title">Hours/Week</div>
+                    <div class="stat-value"><span class="counter" data-target="{{ total_hours|default:0 }}">0</span></div>
+                </div>
+                <i class="fas fa-clock"></i>
+            </div>
+        </div>
+
+        <!-- Announcements Card -->
+        <div class="card">
+            <h2><img src="{% static 'scheduler/images/Automated_Class_Scheduling_Logo-removebg-preview.png' %}" alt="Logo" class="heading-logo"> Latest Announcements</h2>
+            {% if announcements %}
+                <div class="room-grid">
+                    {% for announcement in announcements %}
+                    <div class="room-card">
+                        <div class="room-card-header">
+                            <h4>
+                                <i class="fas fa-bullhorn"></i>
+                                {{ announcement.title|truncatechars:30 }}
+                            </h4>
+                            <span class="room-type-badge lecture">
+                                {{ announcement.created_at|date:"M d" }}
+                            </span>
+                        </div>
+                        <div class="room-card-body">
+                            <div class="room-info">
+                                <span><i class="fas fa-align-left"></i> {{ announcement.content|truncatechars:80 }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p style="text-align: center; color: var(--text-muted); padding: 40px;">
+                    <i class="fas fa-inbox" style="font-size: 48px; opacity: 0.3; display: block; margin-bottom: 16px;"></i>
+                    No announcements at this time.
+                </p>
+            {% endif %}
+        </div>
+
+        <!-- Weekly Schedule by Year and Semester -->
+        {% if section_schedule_groups %}
+            {% for group in section_schedule_groups %}
+            <div class="card">
+                <h2><img src="{% static 'scheduler/images/Automated_Class_Scheduling_Logo-removebg-preview.png' %}" alt="Logo" class="heading-logo"> Year {{ group.year_level }} - {{ group.semester_name }} | {{ group.section.section_name }}</h2>
+                
+                <!-- Section Info -->
+                <div style="background: linear-gradient(135deg, rgba(78, 115, 223, 0.1) 0%, rgba(78, 115, 223, 0.05) 100%); padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+                    <div class="form-grid" style="margin-bottom: 0;">
+                        <div>
+                            <strong><i class="fas fa-graduation-cap"></i> Course:</strong> {{ group.section.course.course_name }}
+                        </div>
+                        <div>
+                            <strong><i class="fas fa-building"></i> Department:</strong> {{ group.section.course.department.name }}
+                        </div>
+                        <div>
+                            <strong><i class="fas fa-book"></i> Subjects:</strong> {{ group.total_subjects }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>TIME</th>
+                                {% for day_name in days_of_week %}
+                                    <th>{{ day_name }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for time_slot in group.slots %}
+                            <tr>
+                                <td style="font-weight: 600; background: var(--light-bg); color: var(--primary);">{{ time_slot }}</td>
+                                {% for day_name in days_of_week %}
+                                <td style="vertical-align: top; min-height: 80px;">
+                                    {% with day_mapping=group.days|get_item:day_name %}
+                                        {% with day_scheds=day_mapping|get_item:time_slot %}
+                                            {% if day_scheds %}
+                                                {% for sched in day_scheds %}
+                                                <div style="background: linear-gradient(135deg, rgba(78, 115, 223, 0.08) 0%, rgba(78, 115, 223, 0.03) 100%); padding: 12px; border-radius: 8px; border-left: 4px solid var(--primary); margin-bottom: 8px; text-align: left;">
+                                                    <div style="font-weight: 700; color: var(--primary); font-size: 14px; margin-bottom: 4px;">{{ sched.subject.subject_code }}</div>
+                                                    <div style="color: var(--text-dark); font-size: 13px; font-weight: 600; margin-bottom: 6px;">{{ sched.subject.subject_name }}</div>
+                                                    <div style="font-size: 11px; color: var(--text-muted);">
+                                                        <div><i class="fas fa-door-open"></i> {{ sched.room.room_name }}</div>
+                                                        <div><i class="fas fa-building"></i> {{ sched.room.get_room_type_display }}</div>
+                                                    </div>
+                                                </div>
+                                                {% endfor %}
+                                            {% else %}
+                                                <div style="font-style: italic; color: var(--text-muted); padding: 20px; text-align: center;">—</div>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% endwith %}
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="card">
+                <div style="text-align: center; padding: 80px 20px;">
+                    <i class="fas fa-calendar-times" style="font-size: 72px; color: var(--primary); opacity: 0.2; margin-bottom: 24px;"></i>
+                    <h3 style="color: var(--text-dark); margin-bottom: 12px;">No Schedule Assigned</h3>
+                    <p style="color: var(--text-muted);">You haven't been assigned any schedules yet. Please contact the administrator.</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user"></i> My Profile</h3>
+                <button class="modal-close" onclick="closeModal('profileModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="profile-modal-header">
+                    <div class="profile-picture-container">
+                        <div class="profile-picture" id="profilePictureDisplay">
+                            <span id="profileInitials">{{ instructor.user.username.0|upper }}</span>
+                            <img id="profileImage" src="" alt="Profile" style="display: none;">
+                        </div>
+                        <label for="profilePictureInput" class="edit-picture-btn">
+                            <i class="fas fa-camera"></i>
+                        </label>
+                        <input type="file" id="profilePictureInput" accept="image/*" style="display: none;">
+                    </div>
+                    <h4 style="color: var(--text-dark); margin-bottom: 4px;">{{ instructor.user.get_full_name }}</h4>
+                    <p style="color: var(--text-muted); font-size: 14px;">Instructor - {{ instructor.department.name }}</p>
+                </div>
+
+                <form>
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" value="{{ instructor.user.username }}" placeholder="Enter username">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" value="{{ instructor.user.email }}" placeholder="Enter email address">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Department</label>
+                            <input type="text" value="{{ instructor.department.name }}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Role</label>
+                            <input type="text" value="Instructor" readonly>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-cog"></i> Settings</h3>
+                <button class="modal-close" onclick="closeModal('settingsModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <!-- Appearance Settings -->
+                <div class="settings-section">
+                    <h4><i class="fas fa-palette"></i> Appearance</h4>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h5>Dark Mode</h5>
+                            <p>Toggle between light and dark theme</p>
+                        </div>
+                        <div class="toggle-switch" id="darkModeToggle" onclick="toggleDarkMode()">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Settings -->
+                <div class="settings-section">
+                    <h4><i class="fas fa-bell"></i> Notifications</h4>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h5>Email Notifications</h5>
+                            <p>Receive email updates about schedule changes</p>
+                        </div>
+                        <div class="toggle-switch active">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-primary" onclick="saveSettings()">
+                    <i class="fas fa-check"></i> Save Settings
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal-overlay" id="logoutModal">
+        <div class="modal-content delete-modal-content">
+            <div class="modal-header delete-modal-header">
+                <h3><i class="fas fa-sign-out-alt"></i> Confirm Logout</h3>
+                <button class="modal-close" onclick="closeModal('logoutModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <p class="delete-warning-text">
+                    Are you sure you want to log out?
+                </p>
+                <p class="delete-warning-subtext">
+                    <i class="fas fa-info-circle"></i> You will need to log in again to access your dashboard.
+                </p>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-cancel" onclick="closeModal('logoutModal')">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <a href="{% url 'logout' %}" class="btn btn-confirm-delete" style="text-decoration: none;">
+                        <i class="fas fa-sign-out-alt"></i> Yes, Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // HAMBURGER MENU & SIDEBAR TOGGLE
+        // ============================================
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        if (hamburgerBtn && sidebar && sidebarOverlay) {
+            // Toggle sidebar on hamburger click
+            hamburgerBtn.addEventListener('click', function() {
+                hamburgerBtn.classList.toggle('active');
+                sidebar.classList.toggle('active');
+                sidebarOverlay.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : 'auto';
+            });
+
+            // Close sidebar when clicking overlay
+            sidebarOverlay.addEventListener('click', function() {
+                hamburgerBtn.classList.remove('active');
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+
+            // Close sidebar when clicking a nav link (mobile)
+            document.querySelectorAll('.sidebar-nav a').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 767) {
+                        hamburgerBtn.classList.remove('active');
+                        sidebar.classList.remove('active');
+                        sidebarOverlay.classList.remove('active');
+                        document.body.style.overflow = 'auto';
+                    }
+                });
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 767) {
+                    hamburgerBtn.classList.remove('active');
+                    sidebar.classList.remove('active');
+                    sidebarOverlay.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        }
+
+        // ============================================
+        // PROFILE DROPDOWN
+        // ============================================
+        const profileTrigger = document.getElementById('profileTrigger');
+        const profileDropdown = document.getElementById('profileDropdown');
+
+        if (profileTrigger && profileDropdown) {
+            profileTrigger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                profileTrigger.classList.toggle('active');
+                profileDropdown.classList.toggle('show');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!profileTrigger.contains(e.target) && !profileDropdown.contains(e.target)) {
+                    profileTrigger.classList.remove('active');
+                    profileDropdown.classList.remove('show');
+                }
+            });
+        }
+
+        // ============================================
+        // MODAL FUNCTIONS
+        // ============================================
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+                
+                // Close dropdown
+                if (profileTrigger && profileDropdown) {
+                    profileTrigger.classList.remove('active');
+                    profileDropdown.classList.remove('show');
+                }
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('show');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // Close modal when clicking outside
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    closeModal(overlay.id);
+                }
+            });
+        });
+
+        // ============================================
+        // DARK MODE TOGGLE
+        // ============================================
+        function toggleDarkMode() {
+            const toggle = document.getElementById('darkModeToggle');
+            const body = document.body;
+            
+            if (toggle) {
+                toggle.classList.toggle('active');
+                body.classList.toggle('dark-mode');
+                
+                // Save preference to localStorage
+                const isDarkMode = body.classList.contains('dark-mode');
+                localStorage.setItem('darkMode', isDarkMode);
+            }
+        }
+
+        // ============================================
+        // COUNTER ANIMATION FOR STATS
+        // ============================================
+        document.querySelectorAll('.counter').forEach(counter => {
+            const target = parseInt(counter.getAttribute('data-target'));
+            const duration = 2000;
+            const increment = target / (duration / 16);
+            let current = 0;
+
+            const updateCounter = () => {
+                current += increment;
+                if (current < target) {
+                    counter.textContent = Math.floor(current);
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    counter.textContent = target;
+                }
+            };
+
+            updateCounter();
+        });
+
+        // ============================================
+        // SAVE SETTINGS FUNCTION
+        // ============================================
+        function saveSettings() {
+            alert('Settings saved successfully!');
+            closeModal('settingsModal');
+        }
+
+        // ============================================
+        // LOAD SAVED PREFERENCES ON PAGE LOAD
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load dark mode preference
+            const darkModePreference = localStorage.getItem('darkMode');
+            if (darkModePreference === 'true') {
+                document.body.classList.add('dark-mode');
+                const toggle = document.getElementById('darkModeToggle');
+                if (toggle) {
+                    toggle.classList.add('active');
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>

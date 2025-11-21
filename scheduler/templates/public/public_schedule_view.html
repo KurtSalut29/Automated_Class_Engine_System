@@ -1,0 +1,300 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Public Class Schedules | A.C.E. Scheduling System</title>
+    <link rel="icon" type="image/png" href="{% static 'scheduler/images/Automated_Class_Scheduling_Logo-removebg-preview.png' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="{% static 'scheduler/css/admin/manage_curriculum.css' %}" />
+    <link rel="stylesheet" href="{% static 'scheduler/css/admin/dashboard.css' %}" />
+    <link rel="stylesheet" href="{% static 'scheduler/css/admin/manage_rooms.css' %}" />
+    <link rel="stylesheet" href="{% static 'scheduler/css/admin/darkmode.css' %}">
+    <script src="{% static 'scheduler/js/global_darkmode.js' %}" defer></script>
+    <style>
+        /* Additional responsive styles for public schedule view */
+        @media (max-width: 767px) {
+            .form-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .dashboard-greeting h2 {
+                font-size: 1.5rem;
+            }
+            .dashboard-greeting p {
+                font-size: 0.9rem;
+            }
+            .navbar {
+                padding: 16px 20px;
+                padding-left: 70px;
+            }
+            .card {
+                margin: 16px;
+                padding: 20px;
+            }
+            .table-wrapper {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            table {
+                min-width: 800px;
+            }
+            table th,
+            table td {
+                padding: 8px 6px;
+                font-size: 12px;
+            }
+            .btn {
+                width: 100%;
+                margin-bottom: 8px;
+            }
+            .btn:last-child {
+                margin-bottom: 0;
+            }
+        }
+        @media (max-width: 480px) {
+            .main-content {
+                padding-top: 70px;
+            }
+            .dashboard-greeting {
+                padding: 20px 16px;
+            }
+            .dashboard-greeting h2 {
+                font-size: 1.3rem;
+            }
+            .card {
+                margin: 12px;
+                padding: 16px;
+            }
+            .heading-logo {
+                width: 20px;
+                height: 20px;
+            }
+            table {
+                min-width: 700px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Hamburger Menu Button -->
+    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle Navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar Overlay (for mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div>
+            <div class="sidebar-header">
+                <img src="{% static 'scheduler/images/Automated_Class_Scheduling_Logo-removebg-preview.png' %}" alt="Logo">
+                <div class="logo-text">A.C.E <span>Sched</span></div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{% url 'public_schedule' %}" class="active"><i class="fas fa-calendar-alt"></i><span>Class Schedules</span></a>
+                <a href="{% url 'auth_page' %}"><i class="fas fa-sign-in-alt"></i><span>Login</span></a>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Greeting Section -->
+        <div class="dashboard-greeting">
+            <div class="greeting-text">
+                <h2><span>Welcome!</span> Public Schedule Viewer</h2>
+                <p>View class schedules across all departments</p>
+            </div>
+        </div>
+
+        <div class="navbar">
+            <div class="navbar-brand">Public Class Schedules</div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="card">
+            <h2><img src="{% static 'scheduler/images/Automated_Class_Scheduling_Logo-removebg-preview.png' %}" alt="Logo" class="heading-logo"> Filter Schedules</h2>
+            <form method="GET" class="add-subject-form">
+                <div class="form-grid">
+                    <div>
+                        <label>Department</label>
+                        <select name="department" onchange="this.form.submit()">
+                            <option value="">-- Select Department --</option>
+                            {% for dept in departments %}
+                                <option value="{{ dept.id }}" {% if selected_department and selected_department.id == dept.id %}selected{% endif %}>
+                                    {{ dept.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Year Level</label>
+                        <input type="text" name="school_year_level" placeholder="e.g., 1st Year" value="{{ request.GET.school_year_level }}">
+                    </div>
+
+                    <div>
+                        <label>Section</label>
+                        <input type="text" name="section" placeholder="e.g., BSCS 1-A" value="{{ request.GET.section }}">
+                    </div>
+
+                    <div>
+                        <label>Instructor</label>
+                        <input type="text" name="instructor" placeholder="Instructor Name" value="{{ request.GET.instructor }}">
+                    </div>
+
+                    <div>
+                        <label>Subject Name</label>
+                        <input type="text" name="subject" placeholder="Subject" value="{{ request.GET.subject }}">
+                    </div>
+
+                    <div>
+                        <label>Room</label>
+                        <input type="text" name="room" placeholder="Room Number" value="{{ request.GET.room }}">
+                    </div>
+                </div>
+
+                <div class="button-group" style="display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-search"></i> Search Schedule
+                    </button>
+                    <a href="?{% if selected_department %}department={{ selected_department.id }}{% endif %}" class="btn btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-redo"></i> Reset Filters
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Schedule Display -->
+        {% if selected_department %}
+            {% if subjects %}
+                {% regroup subjects by section as section_groups %}
+                {% for group in section_groups %}
+                <div class="card">
+                    <h2><img src="{% static 'scheduler/images/Automated_Class_Scheduling_Logo-removebg-preview.png' %}" alt="Logo" class="heading-logo"> {{ group.grouper|default:"No Section Assigned" }} - Schedule</h2>
+                    
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Subject Code</th>
+                                    <th>Subject Name</th>
+                                    <th>Prerequisite</th>
+                                    <th>Lec Units</th>
+                                    <th>Lab Units</th>
+                                    <th>Total Units</th>
+                                    <th>Time</th>
+                                    <th>Day</th>
+                                    <th>Room</th>
+                                    <th>Instructor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for subject in group.list %}
+                                <tr>
+                                    <td>{{ subject.subject_code }}</td>
+                                    <td>{{ subject.subject_name }}</td>
+                                    <td>{{ subject.prerequisite|default:"—" }}</td>
+                                    <td>{{ subject.lecture_units }}</td>
+                                    <td>{{ subject.lab_units }}</td>
+                                    <td>{{ subject.units }}</td>
+                                    <td>
+                                        {% if subject.start_time and subject.end_time %}
+                                            {{ subject.start_time|time:"h:i A" }} - {{ subject.end_time|time:"h:i A" }}
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ subject.day|default:"—" }}</td>
+                                    <td>{{ subject.room|default:"—" }}</td>
+                                    <td>
+                                        {% if subject.instructor %}
+                                            {{ subject.instructor.user.get_full_name }}
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="card">
+                    <p style="text-align: center; color: var(--text-muted); padding: 40px;">
+                        <i class="fas fa-inbox" style="font-size: 48px; opacity: 0.3; display: block; margin-bottom: 16px;"></i>
+                        No subjects found matching your filters.
+                    </p>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="card">
+                <div style="text-align: center; padding: 80px 20px;">
+                    <i class="fas fa-filter" style="font-size: 72px; color: var(--primary); opacity: 0.2; margin-bottom: 24px;"></i>
+                    <h3 style="color: var(--text-dark); margin-bottom: 12px;">Please Select a Department</h3>
+                    <p style="color: var(--text-muted);">Choose a department from the filter above to view class schedules.</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // ============================================
+        // HAMBURGER MENU & SIDEBAR TOGGLE
+        // ============================================
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        if (hamburgerBtn && sidebar && sidebarOverlay) {
+            // Toggle sidebar on hamburger click
+            hamburgerBtn.addEventListener('click', function() {
+                hamburgerBtn.classList.toggle('active');
+                sidebar.classList.toggle('active');
+                sidebarOverlay.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : 'auto';
+            });
+
+            // Close sidebar when clicking overlay
+            sidebarOverlay.addEventListener('click', function() {
+                hamburgerBtn.classList.remove('active');
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+
+            // Close sidebar when clicking a nav link (mobile)
+            document.querySelectorAll('.sidebar-nav a').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 767) {
+                        hamburgerBtn.classList.remove('active');
+                        sidebar.classList.remove('active');
+                        sidebarOverlay.classList.remove('active');
+                        document.body.style.overflow = 'auto';
+                    }
+                });
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 767) {
+                    hamburgerBtn.classList.remove('active');
+                    sidebar.classList.remove('active');
+                    sidebarOverlay.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>

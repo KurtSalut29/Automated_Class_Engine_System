@@ -1,0 +1,504 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Sections | A.C.E. Scheduling System</title>
+    <link rel="icon" type="image/png" href="{% static 'scheduler/images/Automated_Class_Scheduling_Logo-removebg-preview.png' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="{% static 'scheduler/css/admin/manage_curriculum.css' %}" />
+    <link rel="stylesheet" href="{% static 'scheduler/css/admin/dashboard.css' %}" />
+    <link rel="stylesheet" href="{% static 'scheduler/css/admin/manage_rooms.css' %}" />
+    <link rel="stylesheet" href="{% static 'scheduler/css/admin/darkmode.css' %}">
+    <script src="{% static 'scheduler/js/global_darkmode.js' %}" defer></script>
+</head>
+
+<body>
+
+    <!-- Hamburger Menu Button -->
+    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle Navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar Overlay (for mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div>
+            <div class="sidebar-header">
+                <img src="{% static 'scheduler/images/Automated_Class_Scheduling_Logo-removebg-preview.png' %}" alt="Logo">
+                <div class="logo-text">A.C.E <span>Sched</span></div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{% url 'admin_dashboard' %}"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+                <a href="{% url 'manage_users' %}" ><i class="fas fa-users"></i><span> Users</span></a>
+                <a href="{% url 'manage_curriculum' %}"><i class="fas fa-book"></i><span> Subjects</span></a>
+                <a href="{% url 'manage_sections' %}" class="active"><i class="fas fa-layer-group"></i><span> Sections</span></a>
+                <a href="{% url 'manage_rooms' %}"><i class="fas fa-door-open"></i><span> Rooms</span></a>
+                <a href="{% url 'manage_subjects' %}"><i class="fas fa-book-open"></i><span> Class Schedules</span></a>
+                <a href="{% url 'manage_instructors' %}"><i class="fas fa-chalkboard-teacher"></i><span>Instructors</span></a>
+                <a href="{% url 'manage_announcements' %}"><i class="fas fa-bullhorn"></i><span>Announcements</span></a>
+            </nav>
+        </div>
+        <a href="#" class="logout-btn" onclick="openLogoutModal()"><i class="fas fa-sign-out-alt"></i><span> Logout</span></a>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="navbar">
+            <div class="navbar-brand">Manage Sections</div>
+        </div>
+
+        <!-- Toast Messages -->
+        <div class="toast-container">
+            {% for message in messages %}
+            <div class="toast {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+
+        <!-- Add Section Form -->
+        <div class="card">
+            <h2><img src="{% static 'scheduler/images/Automated_Class_Scheduling_Logo-removebg-preview.png' %}" alt="Logo" class="heading-logo"> Add New Section</h2>
+            <form method="POST" class="add-subject-form">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="create_section">
+
+                <div class="form-grid">
+                    <div>
+                        <label>Department</label>
+                        <select id="add_department" name="department" required>
+                            <option value="">-- Select Department --</option>
+                            {% for dept in departments %}
+                                <option value="{{ dept.id }}">{{ dept.code }} - {{ dept.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Course</label>
+                        <select id="add_course" name="course" required>
+                            <option value="">-- Select Course --</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Section Name</label>
+                        <input type="text" name="section_name" placeholder="e.g., BSCS 1A" required>
+                    </div>
+
+                    <div>
+                        <label>Year Level</label>
+                        <select name="year_level" required>
+                            <option value="">-- Select Year Level --</option>
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success mt-3">
+                    <i class="fas fa-plus-circle"></i> Add Section
+                </button>
+            </form>
+        </div>
+
+        <!-- Sections Display -->
+        <div class="card">
+            <h2><img src="{% static 'scheduler/images/Automated_Class_Scheduling_Logo-removebg-preview.png' %}" alt="Logo" class="heading-logo"> All Sections</h2>
+            
+            {% if sections %}
+            <div class="room-grid">
+                {% for section in sections %}
+                <div class="room-card">
+                    <div class="room-card-header">
+                        <h4>
+                            <i class="fas fa-layer-group"></i>
+                            {{ section.section_name }}
+                        </h4>
+                        <span class="room-type-badge lecture">
+                            Year {{ section.year_level }}
+                        </span>
+                    </div>
+
+                    <div class="room-card-body">
+                        <div class="room-info">
+                            <span><i class="fas fa-graduation-cap"></i> <strong>Course:</strong> {{ section.course.course_code }}</span>
+                            <span><i class="fas fa-building"></i> <strong>Department:</strong> {{ section.course.department.name }}</span>
+                            <span><i class="fas fa-book"></i> <strong>Full Course:</strong> {{ section.course.course_name }}</span>
+                        </div>
+                    </div>
+
+                    <div class="room-card-footer">
+                        <button type="button" class="btn btn-view" onclick="openEditModal({{ section.id }}, '{{ section.section_name }}', '{{ section.year_level }}', '{{ section.course.id }}', '{{ section.course.department.id }}')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button type="button" class="btn btn-danger" onclick="openDeleteModal({{ section.id }}, '{{ section.section_name }}')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if paginator %}
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Showing {{ paginator.start_index }} - {{ paginator.end_index }} of {{ paginator.paginator.count }} sections
+                </div>
+                <div class="pagination">
+                    {% if paginator.has_previous %}
+                        <a href="?page=1" class="page-link">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                        <a href="?page={{ paginator.previous_page_number }}" class="page-link">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    {% else %}
+                        <span class="page-link disabled">
+                            <i class="fas fa-angle-double-left"></i>
+                        </span>
+                        <span class="page-link disabled">
+                            <i class="fas fa-angle-left"></i>
+                        </span>
+                    {% endif %}
+
+                    {% for num in paginator.paginator.page_range %}
+                        {% if paginator.number == num %}
+                            <span class="page-link active">{{ num }}</span>
+                        {% elif num > paginator.number|add:'-3' and num < paginator.number|add:'3' %}
+                            <a href="?page={{ num }}" class="page-link">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if paginator.has_next %}
+                        <a href="?page={{ paginator.next_page_number }}" class="page-link">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                        <a href="?page={{ paginator.paginator.num_pages }}" class="page-link">
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    {% else %}
+                        <span class="page-link disabled">
+                            <i class="fas fa-angle-right"></i>
+                        </span>
+                        <span class="page-link disabled">
+                            <i class="fas fa-angle-double-right"></i>
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% else %}
+            <p style="text-align: center; color: var(--text-muted); padding: 40px;">
+                <i class="fas fa-inbox" style="font-size: 48px; opacity: 0.3; display: block; margin-bottom: 16px;"></i>
+                No sections found.
+            </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Edit Section Modal -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-edit"></i> Edit Section</h3>
+                <span class="close" onclick="closeEditModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="editForm" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="section_id" id="edit_section_id">
+                    <input type="hidden" name="action" value="edit_section">
+                    
+                    <div class="form-grid">
+                        <div>
+                            <label>Department</label>
+                            <select id="edit_department" name="department" required>
+                                <option value="">-- Select Department --</option>
+                                {% for dept in departments %}
+                                    <option value="{{ dept.id }}">{{ dept.code }} - {{ dept.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label>Course</label>
+                            <select id="edit_course" name="course" required>
+                                <option value="">-- Select Course --</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label>Section Name</label>
+                            <input type="text" name="section_name" id="edit_section_name" required>
+                        </div>
+
+                        <div>
+                            <label>Year Level</label>
+                            <select name="year_level" id="edit_year_level" required>
+                                <option value="">-- Select Year Level --</option>
+                                <option value="1">1st Year</option>
+                                <option value="2">2nd Year</option>
+                                <option value="3">3rd Year</option>
+                                <option value="4">4th Year</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-cancel" onclick="closeEditModal()">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <button type="submit" class="btn btn-confirm-delete">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content delete-modal-content">
+            <div class="modal-header delete-modal-header">
+                <h3><i class="fas fa-exclamation-triangle"></i> Confirm Deletion</h3>
+                <span class="close" onclick="closeDeleteModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p class="delete-warning-text">
+                    Are you sure you want to delete the section <strong id="deleteSectionName"></strong>?
+                </p>
+                <p class="delete-warning-subtext">
+                    <i class="fas fa-info-circle"></i> This action cannot be undone and will permanently remove this section from the system.
+                </p>
+                <form method="POST" id="deleteSectionForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_section">
+                    <input type="hidden" name="section_id" id="deleteSectionId">
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-cancel" onclick="closeDeleteModal()">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <button type="submit" class="btn btn-confirm-delete">
+                            <i class="fas fa-trash"></i> Yes, Delete Section
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal-overlay" id="logoutModal">
+        <div class="modal-content delete-modal-content">
+            <div class="modal-header delete-modal-header">
+                <h3><i class="fas fa-sign-out-alt"></i> Confirm Logout</h3>
+                <button class="modal-close" onclick="closeModal('logoutModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <p class="delete-warning-text">
+                    Are you sure you want to log out?
+                </p>
+                <p class="delete-warning-subtext">
+                    <i class="fas fa-info-circle"></i> You will need to log in again to access your dashboard.
+                </p>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-cancel" onclick="closeModal('logoutModal')">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <a href="{% url 'logout' %}" class="btn btn-confirm-delete" style="text-decoration: none;">
+                        <i class="fas fa-sign-out-alt"></i> Yes, Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Edit Modal Functions
+        function openEditModal(sectionId, sectionName, yearLevel, courseId, departmentId) {
+            document.getElementById('edit_section_id').value = sectionId;
+            document.getElementById('edit_section_name').value = sectionName;
+            document.getElementById('edit_year_level').value = yearLevel;
+            document.getElementById('edit_department').value = departmentId;
+            
+            loadCoursesForEdit(departmentId, courseId);
+            document.getElementById('editModal').classList.add('show');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('show');
+        }
+
+        function loadCoursesForEdit(departmentId, selectedCourseId) {
+            let courseDropdown = $('#edit_course');
+            
+            if (!departmentId) {
+                courseDropdown.html('<option value="">-- Select Course --</option>');
+                return;
+            }
+
+            courseDropdown.html('<option>Loading...</option>');
+            $.getJSON(`/get_courses_section/${departmentId}/`, function (data) {
+                courseDropdown.html('<option value="">-- Select Course --</option>');
+                $.each(data, function (i, course) {
+                    let selected = course.id == selectedCourseId ? 'selected' : '';
+                    courseDropdown.append(`<option value="${course.id}" ${selected}>${course.course_code} - ${course.course_name}</option>`);
+                });
+            }).fail(function () {
+                courseDropdown.html('<option>Error loading courses</option>');
+            });
+        }
+
+        // Delete Modal Functions
+        function openDeleteModal(sectionId, sectionName) {
+            document.getElementById('deleteSectionId').value = sectionId;
+            document.getElementById('deleteSectionName').textContent = sectionName;
+            document.getElementById('deleteModal').classList.add('show');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('show');
+        }
+
+        // Dynamic dropdown for add form
+        $('#add_department').change(function () {
+            let deptId = $(this).val();
+            let courseDropdown = $('#add_course');
+
+            if (!deptId) {
+                courseDropdown.html('<option value="">-- Select Course --</option>');
+                return;
+            }
+
+            courseDropdown.html('<option>Loading...</option>');
+            $.getJSON(`/get_courses_section/${deptId}/`, function (data) {
+                courseDropdown.html('<option value="">-- Select Course --</option>');
+                $.each(data, function (i, course) {
+                    courseDropdown.append(`<option value="${course.id}">${course.course_code} - ${course.course_name}</option>`);
+                });
+            }).fail(function () {
+                courseDropdown.html('<option>Error loading courses</option>');
+            });
+        });
+
+        // Dynamic dropdown for edit modal
+        $('#edit_department').change(function () {
+            let deptId = $(this).val();
+            let courseDropdown = $('#edit_course');
+
+            if (!deptId) {
+                courseDropdown.html('<option value="">-- Select Course --</option>');
+                return;
+            }
+
+            courseDropdown.html('<option>Loading...</option>');
+            $.getJSON(`/get_courses_section/${deptId}/`, function (data) {
+                courseDropdown.html('<option value="">-- Select Course --</option>');
+                $.each(data, function (i, course) {
+                    courseDropdown.append(`<option value="${course.id}">${course.course_code} - ${course.course_name}</option>`);
+                });
+            }).fail(function () {
+                courseDropdown.html('<option>Error loading courses</option>');
+            });
+        });
+
+        // Close modals when clicking outside
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditModal();
+            }
+        });
+
+        document.getElementById('deleteModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDeleteModal();
+            }
+        });
+
+        document.getElementById('logoutModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal('logoutModal');
+            }
+        });
+
+        // Auto-hide toast messages
+        setTimeout(() => {
+            document.querySelectorAll('.toast').forEach(toast => {
+                toast.style.animation = 'fadeOut 0.5s ease forwards';
+                setTimeout(() => toast.remove(), 500);
+            });
+        }, 4000);
+
+         // ============================================
+        // HAMBURGER MENU & SIDEBAR TOGGLE
+        // ============================================
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        if (hamburgerBtn && sidebar && sidebarOverlay) {
+            // Toggle sidebar on hamburger click
+            hamburgerBtn.addEventListener('click', function() {
+                hamburgerBtn.classList.toggle('active');
+                sidebar.classList.toggle('active');
+                sidebarOverlay.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : 'auto';
+            });
+
+            // Close sidebar when clicking overlay
+            sidebarOverlay.addEventListener('click', function() {
+                hamburgerBtn.classList.remove('active');
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+
+            // Close sidebar when clicking a nav link (mobile)
+            document.querySelectorAll('.sidebar-nav a').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 767) {
+                        hamburgerBtn.classList.remove('active');
+                        sidebar.classList.remove('active');
+                        sidebarOverlay.classList.remove('active');
+                        document.body.style.overflow = 'auto';
+                    }
+                });
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 767) {
+                    hamburgerBtn.classList.remove('active');
+                    sidebar.classList.remove('active');
+                    sidebarOverlay.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        }
+
+        // ============================================
+        // LOGOUT MODAL
+        // ============================================
+        function openLogoutModal() {
+            document.getElementById('logoutModal').classList.add('show');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+    </script>
+</body>
+</html>

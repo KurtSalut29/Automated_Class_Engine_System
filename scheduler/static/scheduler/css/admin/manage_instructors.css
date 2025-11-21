@@ -1,0 +1,1520 @@
+/* ===============================
+   TABLE OF CONTENTS
+   1. CSS Variables & Reset
+   2. Base Styles
+   3. Sidebar Navigation
+   4. Main Content Area
+   5. Toast Notifications
+   6. Cards
+   7. Forms
+   8. Buttons
+   9. Tables
+   10. Modals (if needed)
+   11. Dark Mode
+   12. Responsive Design
+       - Large Desktop (1440px+)
+       - Desktop (1024px - 1439px)
+       - Tablet (768px - 1023px)
+       - Mobile (up to 767px)
+       - Small Mobile (up to 480px)
+       - Extra Small (up to 359px)
+   13. Special Cases
+       - Landscape Orientation
+       - Touch Devices
+       - Print Styles
+   14. Accessibility
+=============================== */
+
+/* ===============================
+   1. CSS VARIABLES & RESET
+=============================== */
+:root {
+  /* Color Palette */
+  --primary: #4e73df;
+  --primary-dark: #2e59d9;
+  --accent-success: #1cc88a;
+  --accent-info: #36b9cc;
+  --accent-warning: #f6c23e;
+  --accent-danger: #e74a3b;
+  
+  /* Text Colors */
+  --text-dark: #222;
+  --text-muted: #6c757d;
+  
+  /* Backgrounds */
+  --light-bg: #f4f5f7;
+  --white: #ffffff;
+  --border: #e3e6f0;
+  
+  /* Effects */
+  --card-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+  --card-shadow-hover: 0 6px 24px rgba(15, 23, 42, 0.12);
+  --transition: 0.28s ease;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ===============================
+   2. BASE STYLES
+=============================== */
+body {
+  font-family: "Poppins", sans-serif;
+  background: var(--light-bg);
+  color: var(--text-muted);
+  display: flex;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===============================
+   3. SIDEBAR NAVIGATION
+=============================== */
+.sidebar {
+  width: 250px;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: fixed;
+  height: 100vh;
+  box-shadow: var(--card-shadow);
+  transition: var(--transition);
+  z-index: 100;
+  overflow-y: auto;
+}
+
+.sidebar .sidebar-header {
+  text-align: center;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--border);
+}
+
+.sidebar .sidebar-header img {
+  width: 65px;
+  display: block;
+  margin: 0 auto 10px;
+}
+
+.sidebar .logo-text {
+  color: var(--text-dark);
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.5px;
+}
+
+.sidebar .logo-text span {
+  color: var(--primary);
+}
+
+/* Sidebar Navigation Links */
+nav.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+}
+
+nav.sidebar-nav a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-weight: 500;
+  transition: var(--transition);
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+nav.sidebar-nav a i {
+  width: 20px;
+  text-align: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+nav.sidebar-nav a:hover {
+  background: rgba(78, 115, 223, 0.08);
+  color: var(--primary);
+  transform: translateX(4px);
+}
+
+nav.sidebar-nav a.active {
+  background: var(--primary);
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(78, 115, 223, 0.3);
+}
+
+/* Logout Button */
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  color: var(--accent-danger);
+  text-decoration: none;
+  font-weight: 600;
+  border-top: 2px solid var(--border);
+  transition: var(--transition);
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+.logout-btn:hover {
+  background: rgba(231, 74, 59, 0.1);
+  transform: translateX(4px);
+}
+
+/* Sidebar Toggle & Overlay (Mobile) */
+.sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 200;
+  background: var(--primary);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(78, 115, 223, 0.3);
+  transition: all 0.3s ease;
+}
+
+.sidebar-toggle:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(78, 115, 223, 0.4);
+}
+
+.sidebar-toggle i {
+  font-size: 18px;
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 90;
+  backdrop-filter: blur(2px);
+}
+
+.sidebar-overlay.active {
+  display: block;
+}
+
+/* ===============================
+   4. MAIN CONTENT AREA
+=============================== */
+.main-content {
+  margin-left: 250px;
+  width: calc(100% - 250px);
+  padding: 0;
+  min-height: 100vh;
+  transition: var(--transition);
+}
+
+/* Navbar */
+.navbar {
+  padding: 20px 32px;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.navbar .navbar-brand {
+  font-weight: 700;
+  color: var(--text-dark);
+  font-size: 24px;
+}
+
+.navbar .profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* ===============================
+   5. TOAST NOTIFICATIONS
+=============================== */
+.toast-container {
+  position: fixed;
+  top: 90px;
+  right: 30px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 90vw;
+}
+
+.toast {
+  padding: 14px 20px;
+  border-radius: 8px;
+  min-width: 300px;
+  max-width: 100%;
+  font-weight: 500;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  animation: slideInRight 0.3s ease, fadeOut 0.5s ease 4.5s forwards;
+  border-left: 4px solid;
+}
+
+.toast.success {
+  background: #d4edda;
+  color: #155724;
+  border-left-color: var(--accent-success);
+}
+
+.toast.error {
+  background: #f8d7da;
+  color: #721c24;
+  border-left-color: var(--accent-danger);
+}
+
+.toast.warning {
+  background: #fff3cd;
+  color: #856404;
+  border-left-color: var(--accent-warning);
+}
+
+.toast.info {
+  background: #d1ecf1;
+  color: #0c5460;
+  border-left-color: var(--accent-info);
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+/* ===============================
+   6. CARDS
+=============================== */
+.card {
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  padding: 24px;
+  margin: 20px 28px;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border);
+  overflow: visible;
+}
+
+.card:hover {
+  box-shadow: var(--card-shadow-hover);
+  transform: translateY(-2px);
+}
+
+.card h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 3px solid var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.card h2 i {
+  color: var(--primary);
+  font-size: 20px;
+}
+
+/* ===============================
+   7. FORMS
+=============================== */
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+  margin-top: 16px;
+}
+
+form > div,
+form > select {
+  flex: 1 1 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+form label {
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 6px;
+  font-size: 13px;
+  letter-spacing: 0.2px;
+}
+
+form input[type="text"],
+form input[type="number"],
+form input[type="email"],
+form select {
+  width: 100%;
+  max-width: 100%;
+  padding: 12px 14px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: "Poppins", sans-serif;
+  transition: all 0.3s ease;
+  background: var(--white);
+  color: var(--text-dark);
+  box-sizing: border-box;
+}
+
+form input:focus,
+form select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.08);
+}
+
+form select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234e73df' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 40px;
+}
+
+form button {
+  flex: 1 1 100%;
+  margin-top: 4px;
+}
+
+/* ===============================
+   8. BUTTONS
+=============================== */
+.btn,
+button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: "Poppins", sans-serif;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn-add,
+button[type="submit"] {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(78, 115, 223, 0.3);
+}
+
+.btn-add:hover,
+button[type="submit"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(78, 115, 223, 0.4);
+}
+
+.btn-delete {
+  background: linear-gradient(135deg, var(--accent-danger) 0%, #c53030 100%);
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(231, 74, 59, 0.3);
+}
+
+.btn-delete:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(231, 74, 59, 0.4);
+}
+
+/* ===============================
+   9. TABLES
+=============================== */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border);
+  background: var(--white);
+  -webkit-overflow-scrolling: touch;
+  margin-top: 16px;
+}
+
+.table-responsive::-webkit-scrollbar {
+  height: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 0 0 10px 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-dark);
+}
+
+table {
+  width: 100%;
+  min-width: 600px;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 0;
+}
+
+table th,
+table td {
+  padding: 14px 12px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+/* Table Header */
+table thead th {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: var(--white);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+table thead th:first-child {
+  border-radius: 10px 0 0 0;
+  padding-left: 16px;
+}
+
+table thead th:last-child {
+  border-radius: 0 10px 0 0;
+  padding-right: 16px;
+}
+
+/* Table Body */
+table tbody tr {
+  transition: all 0.2s ease;
+  border-bottom: 1px solid var(--border);
+}
+
+table tbody tr:nth-child(even) {
+  background: #f8f9fc;
+}
+
+table tbody tr:hover {
+  background: rgba(78, 115, 223, 0.05);
+}
+
+table tbody tr:last-child {
+  border-bottom: none;
+}
+
+table tbody tr:last-child td:first-child {
+  border-radius: 0 0 0 10px;
+}
+
+table tbody tr:last-child td:last-child {
+  border-radius: 0 0 10px 0;
+}
+
+table td {
+  color: var(--text-dark);
+  font-size: 13px;
+}
+
+table td:first-child {
+  font-weight: 500;
+  padding-left: 16px;
+}
+
+table td:last-child {
+  padding-right: 16px;
+}
+
+/* Empty Table State */
+.empty-table {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-muted);
+  font-style: italic;
+  background: #f8f9fc;
+}
+
+/* ===============================
+   10. MODALS (Reserved for future use)
+=============================== */
+/* Modal styles can be added here if needed */
+
+/* ===============================
+   11. DARK MODE
+=============================== */
+body.dark-mode {
+  background: #1a1a2e;
+  color: #a0a0a0;
+}
+
+body.dark-mode .sidebar {
+  background: #16213e;
+  border-right-color: #2d3748;
+}
+
+body.dark-mode .sidebar .sidebar-header {
+  border-bottom-color: #2d3748;
+}
+
+body.dark-mode .sidebar .logo-text {
+  color: #e0e0e0;
+}
+
+body.dark-mode nav.sidebar-nav a {
+  color: #a0a0a0;
+}
+
+body.dark-mode nav.sidebar-nav a:hover {
+  background: rgba(78, 115, 223, 0.15);
+  color: var(--primary);
+}
+
+body.dark-mode nav.sidebar-nav a.active {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+body.dark-mode .logout-btn {
+  color: #ff6b6b;
+  border-top-color: #2d3748;
+}
+
+body.dark-mode .logout-btn:hover {
+  background: rgba(231, 74, 59, 0.15);
+}
+
+body.dark-mode .main-content {
+  background: #1a1a2e;
+}
+
+body.dark-mode .navbar .navbar-brand {
+  color: #e0e0e0;
+}
+
+body.dark-mode .navbar .profile {
+  color: #a0a0a0;
+}
+
+body.dark-mode .card {
+  background: #16213e;
+  border-color: #2d3748;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .card h2 {
+  color: #e0e0e0;
+  border-bottom-color: var(--primary);
+}
+
+body.dark-mode form label {
+  color: #e0e0e0;
+}
+
+body.dark-mode form input[type="text"],
+body.dark-mode form input[type="number"],
+body.dark-mode form input[type="email"],
+body.dark-mode form select {
+  background: #1a1a2e;
+  color: #e0e0e0;
+  border-color: #2d3748;
+}
+
+body.dark-mode form input:focus,
+body.dark-mode form select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.15);
+}
+
+body.dark-mode .table-responsive {
+  background: #16213e;
+  border-color: #2d3748;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode table {
+  background: #16213e;
+}
+
+body.dark-mode table thead th {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: #ffffff;
+}
+
+body.dark-mode table tbody tr {
+  background: #16213e;
+  border-bottom-color: #2d3748;
+}
+
+body.dark-mode table tbody tr:nth-child(even) {
+  background: #1a1f3a;
+}
+
+body.dark-mode table tbody tr:hover {
+  background: rgba(78, 115, 223, 0.15);
+}
+
+body.dark-mode table td {
+  color: #e0e0e0;
+}
+
+body.dark-mode .empty-table {
+  background: #1a1f3a;
+  color: #a0a0a0;
+}
+
+body.dark-mode .toast.success {
+  background: #1b4d3e;
+  color: #a3f5d0;
+  border-left-color: var(--accent-success);
+}
+
+body.dark-mode .toast.error {
+  background: #4a1f1f;
+  color: #ffb3b3;
+  border-left-color: var(--accent-danger);
+}
+
+body.dark-mode .toast.warning {
+  background: #4a3f1f;
+  color: #ffe4a3;
+  border-left-color: var(--accent-warning);
+}
+
+body.dark-mode .toast.info {
+  background: #1f3a4a;
+  color: #a3d5ff;
+  border-left-color: var(--accent-info);
+}
+
+/* ===============================
+   12. RESPONSIVE DESIGN
+=============================== */
+
+/* ========== 12.1 LARGE DESKTOP (1440px+) ========== */
+@media (min-width: 1440px) {
+  .card {
+    margin: 24px 40px;
+    padding: 28px;
+  }
+  
+  .navbar {
+    padding: 24px 40px;
+  }
+  
+  form > div,
+  form > select {
+    flex: 1 1 calc(33.333% - 8px);
+  }
+}
+
+/* ========== 12.2 DESKTOP (1024px - 1439px) ========== */
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .sidebar {
+    width: 240px;
+  }
+  
+  .main-content {
+    margin-left: 240px;
+    width: calc(100% - 240px);
+  }
+  
+  .card {
+    margin: 20px 24px;
+  }
+  
+  form > div,
+  form > select {
+    flex: 1 1 calc(50% - 6px);
+  }
+}
+
+/* ========== 12.3 TABLET (768px - 1023px) ========== */
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* Collapsed Sidebar with Icons Only */
+  .sidebar {
+    width: 70px;
+  }
+  
+  .sidebar .logo-text,
+  nav.sidebar-nav a span,
+  .logout-btn span {
+    display: none;
+  }
+  
+  nav.sidebar-nav a,
+  .logout-btn {
+    justify-content: center;
+    padding: 12px;
+  }
+  
+  .sidebar .sidebar-header img {
+    width: 45px;
+  }
+  
+  .main-content {
+    margin-left: 70px;
+    width: calc(100% - 70px);
+  }
+  
+  .navbar {
+    padding: 18px 20px;
+  }
+  
+  .navbar-brand {
+    font-size: 20px;
+  }
+  
+  .card {
+    margin: 16px 20px;
+    padding: 20px;
+  }
+  
+  .card h2 {
+    font-size: 16px;
+  }
+  
+  table {
+    font-size: 12px;
+  }
+  
+  table th,
+  table td {
+    padding: 12px 10px;
+  }
+  
+  form > div,
+  form > select {
+    flex: 1 1 100%;
+  }
+}
+
+/* ========== 12.4 MOBILE (up to 767px) ========== */
+@media (max-width: 767px) {
+  /* Show Mobile Toggle */
+  .sidebar-toggle {
+    display: block;
+  }
+  
+  /* Hide Sidebar by Default */
+  .sidebar {
+    transform: translateX(-100%);
+    width: 260px;
+  }
+  
+  .sidebar.active {
+    transform: translateX(0);
+  }
+  
+  /* Full Width Content */
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+    padding-top: 60px;
+  }
+  
+  /* Navbar Adjustments */
+  .navbar {
+    padding: 16px 20px 16px 70px;
+  }
+  
+  .navbar-brand {
+    font-size: 18px;
+  }
+  
+  /* Card Adjustments */
+  .card {
+    margin: 16px;
+    padding: 20px;
+    border-radius: 10px;
+  }
+  
+  .card h2 {
+    font-size: 16px;
+    gap: 8px;
+  }
+  
+  .card h2 i {
+    font-size: 18px;
+  }
+  
+  /* Form Adjustments */
+  form > div,
+  form > select {
+    flex: 1 1 100%;
+  }
+  
+  form input,
+  form select {
+    padding: 11px 14px;
+    font-size: 14px;
+  }
+  
+  form button {
+    padding: 12px 18px;
+    font-size: 14px;
+  }
+  
+  /* Mobile Table Layout - Card Style */
+  .table-responsive {
+    border-radius: 8px;
+  }
+  
+  table {
+    min-width: 100%;
+    font-size: 13px;
+  }
+  
+  table,
+  table thead,
+  table tbody,
+  table th,
+  table td,
+  table tr {
+    display: block;
+  }
+  
+  table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  
+  table tbody tr {
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    background: var(--white);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  table tbody tr:nth-child(even) {
+    background: var(--white);
+  }
+  
+  table tbody tr:hover {
+    background: rgba(78, 115, 223, 0.03);
+  }
+  
+  table td {
+    border: none;
+    position: relative;
+    padding: 10px 10px 10px 45%;
+    text-align: right;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  table td:last-child {
+    border-bottom: none;
+  }
+  
+  table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 10px;
+    width: 40%;
+    padding-right: 10px;
+    white-space: nowrap;
+    font-weight: 600;
+    color: var(--text-dark);
+    text-align: left;
+    font-size: 12px;
+  }
+  
+  table td:first-child {
+    border-radius: 8px 8px 0 0;
+    padding-left: 45%;
+  }
+  
+  table td:last-child {
+    border-radius: 0 0 8px 8px;
+    padding-right: 10px;
+  }
+  
+  .empty-table {
+    padding: 30px 20px;
+    font-size: 14px;
+    border-radius: 8px;
+  }
+  
+  /* Toast Adjustments */
+  .toast-container {
+    top: 70px;
+    right: 10px;
+    left: 10px;
+  }
+  
+  .toast {
+    min-width: auto;
+    font-size: 13px;
+    padding: 12px 16px;
+  }
+}
+
+/* ========== 12.5 SMALL MOBILE (up to 480px) ========== */
+@media (max-width: 480px) {
+  .sidebar-toggle {
+    top: 15px;
+    left: 15px;
+    padding: 8px 10px;
+  }
+  
+  .sidebar-toggle i {
+    font-size: 16px;
+  }
+  
+  .navbar {
+    padding: 12px 15px 12px 60px;
+  }
+  
+  .navbar-brand {
+    font-size: 16px;
+  }
+  
+  .card {
+    margin: 12px;
+    padding: 16px;
+    border-radius: 8px;
+  }
+  
+  .card h2 {
+    font-size: 15px;
+    gap: 6px;
+  }
+  
+  .card h2 i {
+    font-size: 16px;
+  }
+  
+  form input,
+  form select {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  
+  form select {
+    padding-right: 36px;
+    background-position: right 10px center;
+  }
+  
+  form button {
+    padding: 11px 16px;
+    font-size: 13px;
+    gap: 6px;
+  }
+  
+  table tbody tr {
+    margin-bottom: 12px;
+    padding: 10px;
+  }
+  
+  table td {
+    padding: 8px 8px 8px 42%;
+    font-size: 12px;
+    min-height: 32px;
+  }
+  
+  table td::before {
+    font-size: 11px;
+    left: 8px;
+    width: 38%;
+  }
+  
+  .empty-table {
+    padding: 25px 15px;
+    font-size: 13px;
+  }
+  
+  .toast {
+    font-size: 12px;
+    padding: 10px 14px;
+  }
+}
+
+/* ========== 12.6 EXTRA SMALL MOBILE (up to 359px) ========== */
+@media (max-width: 359px) {
+  .sidebar-toggle {
+    padding: 6px 8px;
+    top: 12px;
+    left: 12px;
+  }
+  
+  .sidebar-toggle i {
+    font-size: 14px;
+  }
+  
+  .navbar {
+    padding: 8px 10px 8px 50px;
+  }
+  
+  .navbar-brand {
+    font-size: 13px;
+  }
+  
+  .card {
+    margin: 8px;
+    padding: 12px;
+  }
+  
+  .card h2 {
+    font-size: 13px;
+    gap: 5px;
+  }
+  
+  .card h2 i {
+    font-size: 14px;
+  }
+  
+  form input,
+  form select {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  
+  form button {
+    padding: 9px 12px;
+    font-size: 12px;
+  }
+  
+  table td {
+    padding: 6px 6px 6px 38%;
+    font-size: 11px;
+  }
+  
+  table td::before {
+    font-size: 10px;
+    width: 35%;
+  }
+  
+  .toast {
+    font-size: 11px;
+    padding: 8px 12px;
+  }
+}
+
+/* ========== 12.7 LARGE SCREENS (1920px+) ========== */
+@media (min-width: 1920px) {
+  .main-content {
+    max-width: 1800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .card {
+    max-width: 1600px;
+    margin: 24px auto;
+  }
+  
+  .navbar {
+    max-width: 1800px;
+    margin: 0 auto;
+  }
+  
+  table {
+    font-size: 14px;
+  }
+  
+  .card h2 {
+    font-size: 20px;
+  }
+}
+
+/* ===============================
+   13. SPECIAL CASES
+=============================== */
+
+/* ========== 13.1 LANDSCAPE ORIENTATION ========== */
+@media (max-width: 767px) and (orientation: landscape) {
+  .sidebar {
+    width: 220px;
+    padding: 15px 12px;
+  }
+  
+  .sidebar .sidebar-header img {
+    width: 50px;
+  }
+  
+  nav.sidebar-nav a {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  
+  .main-content {
+    padding-top: 50px;
+  }
+  
+  .navbar {
+    padding: 12px 16px 12px 60px;
+  }
+  
+  .card {
+    margin: 12px;
+    padding: 16px;
+  }
+  
+  .card h2 {
+    font-size: 15px;
+  }
+}
+
+/* ========== 13.2 TABLET SPECIFIC (iPad, Android Tablets) ========== */
+@media (min-width: 768px) and (max-width: 1024px) {
+  /* iPad Portrait */
+  @media (orientation: portrait) {
+    .sidebar {
+      width: 200px;
+    }
+    
+    .main-content {
+      margin-left: 200px;
+      width: calc(100% - 200px);
+    }
+    
+    .card {
+      margin: 18px 24px;
+    }
+    
+    table {
+      font-size: 13px;
+    }
+  }
+  
+  /* iPad Landscape */
+  @media (orientation: landscape) {
+    .sidebar {
+      width: 70px;
+    }
+    
+    .main-content {
+      margin-left: 70px;
+      width: calc(100% - 70px);
+    }
+  }
+}
+
+/* ========== 13.3 TOUCH DEVICES ========== */
+@media (hover: none) and (pointer: coarse) {
+  /* Larger tap targets for touch devices */
+  .btn,
+  button,
+  nav.sidebar-nav a,
+  .sidebar-toggle {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  form input,
+  form select {
+    min-height: 44px;
+  }
+  
+  /* Remove hover effects on touch devices */
+  .card:hover {
+    transform: none;
+  }
+  
+  nav.sidebar-nav a:hover {
+    transform: none;
+  }
+  
+  .btn-add:hover,
+  button[type="submit"]:hover {
+    transform: none;
+  }
+  
+  /* Better touch scrolling */
+  .sidebar,
+  .table-responsive {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ========== 13.4 PRINT STYLES ========== */
+@media print {
+  .sidebar,
+  .sidebar-toggle,
+  .sidebar-overlay,
+  .navbar,
+  .toast-container,
+  .card form,
+  .logout-btn {
+    display: none !important;
+  }
+  
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+    padding: 0;
+  }
+  
+  .card {
+    box-shadow: none;
+    border: 1px solid #000;
+    page-break-inside: avoid;
+    margin: 10px 0;
+  }
+  
+  .card h2 {
+    color: #000;
+    border-bottom: 2px solid #000;
+  }
+  
+  table {
+    font-size: 10pt;
+    min-width: 100%;
+  }
+  
+  table,
+  table thead,
+  table tbody,
+  table th,
+  table td,
+  table tr {
+    display: table;
+    display: table-row;
+    display: table-cell;
+  }
+  
+  table thead {
+    display: table-header-group;
+  }
+  
+  table tbody {
+    display: table-row-group;
+  }
+  
+  table thead th {
+    background: #e0e0e0 !important;
+    color: #000 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  table tbody tr {
+    border-bottom: 1px solid #999;
+  }
+  
+  table td::before {
+    display: none;
+  }
+}
+
+/* ===============================
+   14. ACCESSIBILITY
+=============================== */
+
+/* ========== 14.1 FOCUS STATES ========== */
+*:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ========== 14.2 SKIP TO CONTENT ========== */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--primary);
+  color: white;
+  padding: 8px 16px;
+  text-decoration: none;
+  z-index: 1000;
+}
+
+.skip-to-content:focus {
+  top: 0;
+}
+
+/* ========== 14.3 REDUCED MOTION ========== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .sidebar,
+  .main-content,
+  nav.sidebar-nav a,
+  .card,
+  .btn,
+  button,
+  .toast {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ========== 14.4 HIGH CONTRAST MODE ========== */
+@media (prefers-contrast: high) {
+  .card {
+    border: 2px solid currentColor;
+  }
+  
+  .btn-add,
+  button[type="submit"] {
+    border: 2px solid var(--white);
+  }
+  
+  table {
+    border: 2px solid currentColor;
+  }
+  
+  table th {
+    border: 1px solid currentColor;
+  }
+  
+  form input,
+  form select {
+    border: 2px solid currentColor;
+  }
+}
+
+/* ========== 14.5 SCREEN READER ONLY ========== */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ===============================
+   15. UTILITY CLASSES
+=============================== */
+
+/* ========== 15.1 VISIBILITY ========== */
+.hide-mobile {
+  display: block;
+}
+
+.show-mobile {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .hide-mobile {
+    display: none !important;
+  }
+  
+  .show-mobile {
+    display: block !important;
+  }
+}
+
+/* ========== 15.2 TEXT ALIGNMENT ========== */
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-left {
+  text-align: left;
+}
+
+/* ========== 15.3 LOADING STATES ========== */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.loading-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* ===============================
+   16. DARK MODE - MOBILE SPECIFIC
+=============================== */
+@media (max-width: 767px) {
+  body.dark-mode .sidebar-toggle {
+    background: var(--primary);
+    box-shadow: 0 4px 12px rgba(78, 115, 223, 0.4);
+  }
+  
+  body.dark-mode table tbody tr {
+    background: #16213e;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  body.dark-mode table td {
+    border-bottom-color: #2d3748;
+  }
+  
+  body.dark-mode table td::before {
+    color: #e0e0e0;
+  }
+}
+
+/* ===============================
+   END OF STYLESHEET
+=============================== */

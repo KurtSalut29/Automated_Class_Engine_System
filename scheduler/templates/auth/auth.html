@@ -1,0 +1,348 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login & Registration | A.C.E. Scheduling System</title>
+  <link rel="icon" type="image/png" href="{% static 'scheduler/images/Automated_Class_Scheduling_Logo-removebg-preview.png' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'scheduler/css/admin/auth.css' %}">
+  <style>
+    /* Public Schedule Link Styling */
+    .public-schedule-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #4e73df 0%, #2e59d9 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(78, 115, 223, 0.3);
+      margin-bottom: 24px;
+    }
+
+    .public-schedule-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(78, 115, 223, 0.4);
+    }
+
+    .public-schedule-link i {
+      font-size: 16px;
+    }
+
+    .link-container {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ULTIMATE SPLASH SCREEN -->
+  <div id="splash-screen" class="splash-screen">
+    <div class="splash-glow"></div>
+    
+    <!-- Floating Orbs -->
+    <div class="floating-orb orb-1"></div>
+    <div class="floating-orb orb-2"></div>
+    <div class="floating-orb orb-3"></div>
+    
+    <div class="splash-content">
+      <!-- Logo Container with ALL Effects -->
+      <div class="logo-container">
+        <!-- Light Rays -->
+        <div class="light-ray"></div>
+        <div class="light-ray"></div>
+        <div class="light-ray"></div>
+        <div class="light-ray"></div>
+        <div class="light-ray"></div>
+        <div class="light-ray"></div>
+        
+        <!-- Rotating Rings -->
+        <div class="splash-logo-ring"></div>
+        <div class="splash-logo-ring-2"></div>
+        
+        <!-- Particle Explosion -->
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        
+        <!-- Main Logo -->
+        <img src="{% static 'scheduler/images/Automated_Class_Scheduling_Logo-removebg-preview.png' %}" 
+             alt="System Logo" 
+             class="splash-logo">
+        
+        <!-- Sparkle Particles -->
+        <div class="splash-sparkle sparkle-1"></div>
+        <div class="splash-sparkle sparkle-2"></div>
+        <div class="splash-sparkle sparkle-3"></div>
+        <div class="splash-sparkle sparkle-4"></div>
+        <div class="splash-sparkle sparkle-5"></div>
+        <div class="splash-sparkle sparkle-6"></div>
+      </div>
+      
+      <!-- Title -->
+      <h1 class="splash-title">Automated Class Engine<br>Scheduling System</h1>
+      
+      <!-- Progress Bar with Percentage -->
+      <div class="loading-progress">
+        <div class="progress-bar-container">
+          <div class="progress-bar"></div>
+        </div>
+        <div class="progress-text">Loading... <span id="percent">0%</span></div>
+        <div class="countdown">Ready in <span id="timer">4</span>s</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="container">
+    <div class="header">
+      <div class="logo-top">
+        <img src="{% static 'scheduler/images/Automated_Class_Scheduling_Logo-removebg-preview.png' %}" 
+             alt="Logo" 
+             class="logo-top-img">
+      </div>
+      <h1>Automated Class Engine Scheduling System</h1>
+      <p>Secure Access Portal</p>
+    </div>
+
+    <!-- Public Schedule Link -->
+    <div class="link-container">
+      <a href="{% url 'public_schedule' %}" class="public-schedule-link">
+        <i class="fas fa-calendar-alt"></i>
+        View Public Class Schedules
+      </a>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="login">
+        <i class="fas fa-sign-in-alt"></i> Login
+      </button>
+      <button class="tab-btn" data-tab="register">
+        <i class="fas fa-user-plus"></i> Register
+      </button>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="messages">
+      {% for message in messages %}
+      <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- LOGIN TAB -->
+    <div id="loginForm" class="tab-content active">
+      <div class="form-container">
+        <h2 class="form-title">
+          <i class="fas fa-user-lock"></i>
+          Login to Your Account
+        </h2>
+        <form method="POST">
+          {% csrf_token %}
+          {% for field in login_form %}
+          <div class="form-group">
+            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+            <span class="error-text">{{ field.errors.0 }}</span>
+            {% endif %}
+          </div>
+          {% endfor %}
+          <div class="form-group">
+            <label for="role" class="form-label">Select Role</label>
+            <select name="role" id="role" class="form-input" required>
+              <option value="">-- Choose Role --</option>
+              <option value="ADMIN">Admin</option>
+              <option value="INSTRUCTOR">Instructor</option>
+            </select>
+          </div>
+          <button type="submit" name="login_submit" class="btn">
+            <i class="fas fa-sign-in-alt"></i>
+            Login
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- REGISTER TAB -->
+    <div id="registerForm" class="tab-content">
+      <div class="form-container">
+        <h2 class="form-title">
+          <i class="fas fa-user-plus"></i>
+          Create New Account
+        </h2>
+        
+        <!-- Role Selection Tabs -->
+        <div class="role-tabs">
+          {% if admin_form %}
+          <button class="role-tab active" data-role="admin">
+            <i class="fas fa-user-shield"></i>
+            Admin
+          </button>
+          {% endif %}
+          <button class="role-tab {% if not admin_form %}active{% endif %}" data-role="instructor">
+            <i class="fas fa-chalkboard-teacher"></i>
+            Instructor
+          </button>
+        </div>
+
+        <!-- ADMIN REGISTRATION -->
+        {% if admin_form %}
+        <div id="adminForm" class="role-form active">
+          <form method="POST">
+            {% csrf_token %}
+            <div class="form-row">
+              {% for field in admin_form %}
+              <div class="form-group">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                <span class="error-text">{{ field.errors.0 }}</span>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+            <button type="submit" name="admin_submit" class="btn">
+              <i class="fas fa-user-shield"></i>
+              Register as Admin
+            </button>
+          </form>
+        </div>
+        {% endif %}
+
+        <!-- INSTRUCTOR REGISTRATION -->
+        <div id="instructorForm" class="role-form {% if not admin_form %}active{% endif %}">
+          <form method="POST">
+            {% csrf_token %}
+            <div class="form-row">
+              {% for field in instructor_form %}
+              <div class="form-group">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                <span class="error-text">{{ field.errors.0 }}</span>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+            <button type="submit" name="instructor_submit" class="btn">
+              <i class="fas fa-chalkboard-teacher"></i>
+              Register as Instructor
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // ===== SPLASH SCREEN =====
+      const splashScreen = document.getElementById("splash-screen");
+      const mainContainer = document.querySelector(".container");
+      const percentEl = document.getElementById("percent");
+      const timerEl = document.getElementById("timer");
+
+      // Hide main content initially
+      if (mainContainer) {
+        mainContainer.style.opacity = "0";
+        mainContainer.style.transition = "opacity 1.5s ease";
+      }
+
+      // Progress counter
+      let progress = 0;
+      const progressInterval = setInterval(() => {
+        if (progress < 100) {
+          progress += 2;
+          if (percentEl) percentEl.textContent = progress + "%";
+        } else {
+          clearInterval(progressInterval);
+        }
+      }, 80);
+
+      // Countdown timer
+      let countdown = 4;
+      const countdownInterval = setInterval(() => {
+        countdown--;
+        if (countdown > 0) {
+          if (timerEl) timerEl.textContent = countdown;
+        } else {
+          clearInterval(countdownInterval);
+        }
+      }, 1000);
+
+      // Hide splash screen after 4 seconds
+      setTimeout(() => {
+        if (splashScreen) {
+          splashScreen.classList.add("fade-out");
+          setTimeout(() => {
+            splashScreen.classList.add("hidden");
+            if (mainContainer) mainContainer.style.opacity = "1";
+          }, 2000);
+        }
+      }, 4000);
+
+      // ===== TAB SWITCHING =====
+      const tabBtns = document.querySelectorAll(".tab-btn");
+      const tabContents = document.querySelectorAll(".tab-content");
+
+      tabBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          tabBtns.forEach(b => b.classList.remove("active"));
+          tabContents.forEach(tc => tc.classList.remove("active"));
+          btn.classList.add("active");
+          const targetTab = document.getElementById(btn.dataset.tab + "Form");
+          if (targetTab) targetTab.classList.add("active");
+        });
+      });
+
+      // ===== ROLE SWITCHING =====
+      const roleTabs = document.querySelectorAll(".role-tab");
+      const roleForms = document.querySelectorAll(".role-form");
+
+      roleTabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+          roleTabs.forEach(t => t.classList.remove("active"));
+          roleForms.forEach(f => f.classList.remove("active"));
+          tab.classList.add("active");
+          const targetForm = document.getElementById(tab.dataset.role + "Form");
+          if (targetForm) targetForm.classList.add("active");
+        });
+      });
+
+      // ===== AUTO-HIDE MESSAGES =====
+      const messages = document.querySelectorAll(".message");
+      if (messages.length > 0) {
+        setTimeout(() => {
+          messages.forEach(msg => {
+            msg.style.animation = "slideOut 0.5s ease forwards";
+            setTimeout(() => msg.remove(), 500);
+          });
+        }, 5000);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Student Dashboard{% endblock %}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        h2 {
+            margin-top: 30px;
+            color: #333;
+        }
+
+        h3 {
+            margin-top: 20px;
+            color: #555;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        li {
+            padding: 5px 0;
+        }
+
+        .no-data {
+            color: #888;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Welcome, {{ request.user.first_name }}!</h1>
+</header>
+
+<div class="container">
+    <h2>Announcements</h2>
+    {% if announcements %}
+        <ul>
+        {% for a in announcements %}
+            <li><strong>{{ a.title }}</strong> - {{ a.content }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p class="no-data">No announcements.</p>
+    {% endif %}
+
+    <h2>Your Schedule</h2>
+    {% for day in days_of_week %}
+        <h3>{{ day }}</h3>
+        <ul>
+        {% if schedules_by_day|dictsort:day %}
+            {% for student_schedule in schedules_by_day.day %}
+                <li>
+                    {{ student_schedule.schedule.time_start|time:"H:i" }} - 
+                    {{ student_schedule.schedule.time_end|time:"H:i" }}: 
+                    {{ student_schedule.schedule.subject.subject_code }} - 
+                    {{ student_schedule.schedule.subject.subject_name }} 
+                    ({{ student_schedule.schedule.section }})
+                </li>
+            {% endfor %}
+        {% else %}
+            <li class="no-data">No classes.</li>
+        {% endif %}
+        </ul>
+    {% endfor %}
+</div>
+</body>
+</html>

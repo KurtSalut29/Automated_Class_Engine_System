@@ -1,0 +1,949 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard | A.C.E. Scheduling System</title>
+    <link rel="icon" type="image/png" href="{% static 'scheduler/images/Automated_Class_Scheduling_Logo-removebg-preview.png' %}">
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="{% static 'scheduler/css/admin/dashboard.css' %}" />
+    <link rel="stylesheet" href="{% static 'scheduler/css/darkmode.css' %}" />
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{% static 'scheduler/js/global_darkmode.js' %}"></script>
+    <script src="{% static 'scheduler/js/script.js' %}"></script>
+    
+    <style>
+        /* Responsive styles for all devices */
+        @media (max-width: 767px) {
+            .navbar {
+                padding: 12px 16px !important;
+                padding-left: 60px !important;
+                flex-wrap: nowrap !important;
+            }
+            .navbar-brand {
+                font-size: 1.1rem !important;
+                flex: 1 !important;
+            }
+            .profile-info {
+                display: none !important;
+            }
+            .profile-section {
+                min-width: auto !important;
+                flex-shrink: 0 !important;
+            }
+            .profile-trigger {
+                padding: 8px !important;
+                min-height: 44px !important;
+                justify-content: center !important;
+            }
+            .profile-avatar {
+                width: 36px !important;
+                height: 36px !important;
+                font-size: 14px !important;
+            }
+            .profile-arrow {
+                margin-left: 8px !important;
+                font-size: 12px !important;
+            }
+            .profile-dropdown {
+                right: 0 !important;
+                left: auto !important;
+                min-width: 180px !important;
+            }
+            .cards-grid {
+                grid-template-columns: 1fr !important;
+                gap: 16px !important;
+            }
+            .dashboard-greeting h2 {
+                font-size: 1.5rem !important;
+            }
+            .recent-lists {
+                grid-template-columns: 1fr !important;
+            }
+            .main-content {
+                padding-top: 70px !important;
+            }
+        }
+        @media (max-width: 480px) {
+            .navbar {
+                padding: 12px 16px !important;
+                padding-left: 60px !important;
+            }
+            .navbar-brand {
+                font-size: 1rem !important;
+            }
+            .dashboard-greeting {
+                padding: 20px 16px !important;
+            }
+            .cards-grid {
+                margin: 0 12px !important;
+            }
+            .recent-lists {
+                margin: 16px 12px !important;
+            }
+        }
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .cards-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            .recent-lists {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+        @media (min-width: 1025px) {
+            .cards-grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Hamburger Menu Button -->
+    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle Navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar Overlay (for mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div>
+            <div class="sidebar-header">
+                <img src="{% static 'scheduler/images/Automated_Class_Scheduling_Logo-removebg-preview.png' %}" alt="Logo">
+                <div class="logo-text">A.C.E <span>Sched</span></div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{% url 'admin_dashboard' %}" class="active"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+                <a href="{% url 'manage_users' %}"><i class="fas fa-users"></i><span> Users</span></a>
+                <a href="{% url 'manage_curriculum' %}"><i class="fas fa-book"></i><span> Subjects</span></a>
+                <a href="{% url 'manage_sections' %}"><i class="fas fa-layer-group"></i><span> Sections</span></a>
+                <a href="{% url 'manage_rooms' %}"><i class="fas fa-door-open"></i><span> Rooms</span></a>
+                <a href="{% url 'manage_subjects' %}"><i class="fas fa-book-open"></i><span> Class Schedules</span></a>
+                <a href="{% url 'manage_instructors' %}"><i class="fas fa-chalkboard-teacher"></i><span>Instructors</span></a>
+                <a href="{% url 'manage_announcements' %}"><i class="fas fa-bullhorn"></i><span>Announcements</span></a>
+            </nav>
+        </div>
+        <a href="#" class="logout-btn" onclick="openModal('logoutModal')"><i class="fas fa-sign-out-alt"></i><span> Logout</span></a>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Greeting Section -->
+        <div class="dashboard-greeting">
+            <div class="greeting-text">
+                <h2><span>Good Day!</span> {{ request.user.get_full_name|default:request.user.username }}</h2>
+                <p>Your performance summary this week</p>
+            </div>
+        </div>
+
+        <div class="navbar" style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="navbar-brand">Admin Dashboard</div>
+            
+            <!-- Profile Section -->
+            <div class="profile-section">
+                <div class="profile-trigger" id="profileTrigger">
+                    <div class="profile-avatar">
+                        <span id="avatarInitials">{{ request.user.username.0|upper }}</span>
+                        <img id="avatarImage" src="" alt="Profile" style="display: none;">
+                    </div>
+                    <div class="profile-info">
+                        <div class="profile-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+                        <div class="profile-role">Administrator</div>
+                    </div>
+                    <i class="fas fa-chevron-down profile-arrow"></i>
+                </div>
+
+                <!-- Dropdown Menu -->
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="dropdown-item" onclick="openModal('profileModal')">
+                        <i class="fas fa-user"></i>
+                        <span>Profile</span>
+                    </div>
+                    <div class="dropdown-item" onclick="openModal('settingsModal')">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </div>
+                    <div class="dropdown-item" onclick="openModal('aboutModal')">
+                        <i class="fas fa-info-circle"></i>
+                        <span>About</span>
+                    </div>
+                    <div class="dropdown-item logout" onclick="openModal('logoutModal')">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats grid -->
+        <div class="cards-grid">
+            <!-- Instructors -->
+            <div class="stat-card">
+                <div class="chart-mini">
+                    <canvas id="chart_instructors" width="86" height="86"></canvas>
+                </div>
+                <div class="stat-body">
+                    <div class="stat-title">Instructors</div>
+                    <div class="stat-value"><span class="counter" data-target="{{ total_instructors|default:0 }}">0</span></div>
+                </div>
+                <i class="fas fa-chalkboard-teacher"></i>
+            </div>
+
+            <!-- Sections -->
+            <div class="stat-card">
+                <div class="chart-mini">
+                    <canvas id="chart_sections" width="86" height="86"></canvas>
+                </div>
+                <div class="stat-body">
+                    <div class="stat-title">Sections</div>
+                    <div class="stat-value"><span class="counter" data-target="{{ total_sections|default:0 }}">0</span></div>
+                </div>
+                <i class="fas fa-layer-group"></i>
+            </div>
+
+            <!-- Schedules -->
+            <div class="stat-card">
+                <div class="chart-mini">
+                    <canvas id="chart_schedules" width="86" height="86"></canvas>
+                </div>
+                <div class="stat-body">
+                    <div class="stat-title">Schedules</div>
+                    <div class="stat-value"><span class="counter" data-target="{{ total_schedules|default:0 }}">0</span></div>
+                </div>
+                <i class="fas fa-calendar-check"></i>
+            </div>
+
+            <!-- Subjects -->
+            <div class="stat-card">
+                <div class="chart-mini">
+                    <canvas id="chart_subjects" width="86" height="86"></canvas>
+                </div>
+                <div class="stat-body">
+                    <div class="stat-title">Subjects</div>
+                    <div class="stat-value"><span class="counter" data-target="{{ total_subjects|default:0 }}">0</span></div>
+                </div>
+                <i class="fas fa-book"></i>
+            </div>
+
+            <!-- Rooms -->
+            <div class="stat-card">
+                <div class="chart-mini">
+                    <canvas id="chart_rooms" width="86" height="86"></canvas>
+                </div>
+                <div class="stat-body">
+                    <div class="stat-title">Rooms</div>
+                    <div class="stat-value"><span class="counter" data-target="{{ total_rooms|default:0 }}">0</span></div>
+                </div>
+                <i class="fas fa-door-open"></i>
+            </div>
+
+            <!-- Curriculums -->
+            <div class="stat-card">
+                <div class="chart-mini">
+                    <canvas id="chart_prospectus" width="86" height="86"></canvas>
+                </div>
+                <div class="stat-body">
+                    <div class="stat-title">Curriculums</div>
+                    <div class="stat-value"><span class="counter" data-target="{{ total_prospectus|default:0 }}">0</span></div>
+                </div>
+                <i class="fas fa-scroll"></i>
+            </div>
+        </div>
+
+        <div class="recent-lists" style="margin-top:18px">
+            <!-- Quick Actions Card -->
+            <div class="recent-card quick-actions-card">
+                <h6><i class="fas fa-bolt"></i>&nbsp; Quick Actions</h6>
+                <div class="quick-actions-grid-new">
+                    <a href="{% url 'manage_instructors' %}" class="quick-action-item">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Add Instructor</span>
+                    </a>
+                    <a href="{% url 'manage_sections' %}" class="quick-action-item">
+                        <i class="fas fa-layer-group"></i>
+                        <span>Create Section</span>
+                    </a>
+                    <a href="{% url 'manage_subjects' %}" class="quick-action-item">
+                        <i class="fas fa-calendar-plus"></i>
+                        <span>New Schedule</span>
+                    </a>
+                    <a href="{% url 'manage_announcements' %}" class="quick-action-item">
+                        <i class="fas fa-bullhorn"></i>
+                        <span>Post Announcement</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- System Overview Card -->
+            <div class="recent-card system-overview-card">
+                <h6><i class="fas fa-chart-line"></i>&nbsp; System Overview</h6>
+                <div class="overview-stats">
+                    <div class="overview-item">
+                        <div class="overview-icon primary">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="overview-info">
+                            <span class="overview-label">Active Schedules</span>
+                            <span class="overview-value">{{ total_schedules|default:0 }}</span>
+                        </div>
+                    </div>
+                    <div class="overview-item">
+                        <div class="overview-icon success">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="overview-info">
+                            <span class="overview-label">Total Instructors</span>
+                            <span class="overview-value">{{ total_instructors|default:0 }}</span>
+                        </div>
+                    </div>
+                    <div class="overview-item">
+                        <div class="overview-icon warning">
+                            <i class="fas fa-door-open"></i>
+                        </div>
+                        <div class="overview-info">
+                            <span class="overview-label">Available Rooms</span>
+                            <span class="overview-value">{{ total_rooms|default:0 }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Timeline Card -->
+            <div class="recent-card timeline-card">
+                <h6><i class="fas fa-clock"></i>&nbsp; Recent Activity</h6>
+                <div class="activity-timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot success"></div>
+                        <div class="timeline-content">
+                            <span class="timeline-title">New instructor added</span>
+                            <span class="timeline-time">2 hours ago</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot primary"></div>
+                        <div class="timeline-content">
+                            <span class="timeline-title">Schedule updated</span>
+                            <span class="timeline-time">5 hours ago</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot warning"></div>
+                        <div class="timeline-content">
+                            <span class="timeline-title">Room capacity changed</span>
+                            <span class="timeline-time">1 day ago</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot info"></div>
+                        <div class="timeline-content">
+                            <span class="timeline-title">Announcement posted</span>
+                            <span class="timeline-time">2 days ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Events Card -->
+            <div class="recent-card upcoming-events-card">
+                <h6><i class="fas fa-calendar-alt"></i>&nbsp; Upcoming Events</h6>
+                <div class="events-list">
+                    <div class="event-item">
+                        <div class="event-date">
+                            <span class="event-day">24</span>
+                            <span class="event-month">JAN</span>
+                        </div>
+                        <div class="event-info">
+                            <span class="event-title">Faculty Meeting</span>
+                            <span class="event-time"><i class="fas fa-clock"></i> 2:00 PM</span>
+                        </div>
+                    </div>
+                    <div class="event-item">
+                        <div class="event-date">
+                            <span class="event-day">26</span>
+                            <span class="event-month">JAN</span>
+                        </div>
+                        <div class="event-info">
+                            <span class="event-title">Semester Planning</span>
+                            <span class="event-time"><i class="fas fa-clock"></i> 10:00 AM</span>
+                        </div>
+                    </div>
+                    <div class="event-item">
+                        <div class="event-date">
+                            <span class="event-day">28</span>
+                            <span class="event-month">JAN</span>
+                        </div>
+                        <div class="event-info">
+                            <span class="event-title">System Maintenance</span>
+                            <span class="event-time"><i class="fas fa-clock"></i> 6:00 PM</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Card -->
+            <div class="recent-card performance-card">
+                <h6><i class="fas fa-tachometer-alt"></i>&nbsp; System Performance</h6>
+                <div class="performance-items">
+                    <div class="performance-bar-item">
+                        <div class="performance-header">
+                            <span>Schedule Efficiency</span>
+                            <span class="performance-percent">92%</span>
+                        </div>
+                        <div class="performance-bar">
+                            <div class="performance-fill" style="width: 92%; background: var(--accent-success);"></div>
+                        </div>
+                    </div>
+                    <div class="performance-bar-item">
+                        <div class="performance-header">
+                            <span>Room Utilization</span>
+                            <span class="performance-percent">78%</span>
+                        </div>
+                        <div class="performance-bar">
+                            <div class="performance-fill" style="width: 78%; background: var(--primary);"></div>
+                        </div>
+                    </div>
+                    <div class="performance-bar-item">
+                        <div class="performance-header">
+                            <span>Instructor Load</span>
+                            <span class="performance-percent">85%</span>
+                        </div>
+                        <div class="performance-bar">
+                            <div class="performance-fill" style="width: 85%; background: var(--accent-warning);"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips & Shortcuts Card -->
+            <div class="recent-card tips-card">
+                <h6><i class="fas fa-lightbulb"></i>&nbsp; Pro Tips</h6>
+                <div class="tips-list">
+                    <div class="tip-item">
+                        <i class="fas fa-keyboard"></i>
+                        <p>Use <kbd>Ctrl</kbd> + <kbd>S</kbd> to quickly save any form</p>
+                    </div>
+                    <div class="tip-item">
+                        <i class="fas fa-search"></i>
+                        <p>Press <kbd>/</kbd> to focus the search bar instantly</p>
+                    </div>
+                    <div class="tip-item">
+                        <i class="fas fa-filter"></i>
+                        <p>Click column headers to sort and filter data</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user"></i> My Profile</h3>
+                <button class="modal-close" onclick="closeModal('profileModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="profile-modal-header">
+                    <div class="profile-picture-container">
+                        <div class="profile-picture" id="profilePictureDisplay">
+                            <span id="profileInitials">{{ request.user.username.0|upper }}</span>
+                            <img id="profileImage" src="" alt="Profile" style="display: none;">
+                        </div>
+                        <label for="profilePictureInput" class="edit-picture-btn">
+                            <i class="fas fa-camera"></i>
+                        </label>
+                        <input type="file" id="profilePictureInput" accept="image/*" style="display: none;">
+                    </div>
+                    <h4 style="color: var(--text-dark); margin-bottom: 4px;">{{ request.user.get_full_name|default:request.user.username }}</h4>
+                    <p style="color: var(--text-muted); font-size: 14px;">Administrator</p>
+                </div>
+
+                <form>
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" value="{{ request.user.username }}" placeholder="Enter username">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" value="{{ request.user.email }}" placeholder="Enter email address">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" placeholder="Enter phone number">
+                        </div>
+                        <div class="form-group">
+                            <label>Department</label>
+                            <input type="text" placeholder="Enter department">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Bio</label>
+                        <textarea placeholder="Tell us about yourself..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-cog"></i> Settings</h3>
+                <button class="modal-close" onclick="closeModal('settingsModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <!-- Appearance Settings -->
+                <div class="settings-section">
+                    <h4><i class="fas fa-palette"></i> Appearance</h4>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h5>Dark Mode</h5>
+                            <p>Toggle between light and dark theme</p>
+                        </div>
+                        <div class="toggle-switch" id="darkModeToggle" onclick="toggleDarkMode()">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Settings -->
+                <div class="settings-section">
+                    <h4><i class="fas fa-bell"></i> Notifications</h4>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h5>Email Notifications</h5>
+                            <p>Receive email updates about system activities</p>
+                        </div>
+                        <div class="toggle-switch active">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h5>Push Notifications</h5>
+                            <p>Get instant notifications on your device</p>
+                        </div>
+                        <div class="toggle-switch active">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Settings -->
+                <div class="settings-section">
+                    <h4><i class="fas fa-shield-alt"></i> Security</h4>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h5>Two-Factor Authentication</h5>
+                            <p>Add an extra layer of security to your account</p>
+                        </div>
+                        <div class="toggle-switch">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Privacy Settings -->
+                <div class="settings-section">
+                    <h4><i class="fas fa-lock"></i> Privacy</h4>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h5>Profile Visibility</h5>
+                            <p>Make your profile visible to other users</p>
+                        </div>
+                        <div class="toggle-switch active">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-primary" onclick="saveSettings()">
+                    <i class="fas fa-check"></i> Save Settings
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Modal -->
+    <div class="modal-overlay" id="aboutModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-info-circle"></i> About A.C.E. Scheduling System</h3>
+                <button class="modal-close" onclick="closeModal('aboutModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <!-- Logo and System Name -->
+                <div class="about-logo">
+                    <img src="{% static 'scheduler/images/Automated_Class_Scheduling_Logo-removebg-preview.png' %}" alt="A.C.E. Logo">
+                    <h2>A.C.E. Sched</h2>
+                    <p>Automated Class & Event Scheduling System</p>
+                </div>
+
+                <!-- System Poster -->
+                <div class="about-info-item">
+                    <i class="fas fa-image"></i>
+                    <div class="about-info-content">
+                        <h5>System Poster</h5>
+                        <div style="text-align: center; margin: 16px 0;">
+                            <img src="{% static 'scheduler/images/poster.png' %}" alt="A.C.E. System Poster" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Demo Video -->
+                <div class="about-info-item">
+                    <i class="fas fa-play-circle"></i>
+                    <div class="about-info-content">
+                        <h5>System Demo Video</h5>
+                        <div style="text-align: center; margin: 16px 0;">
+                            <a href="https://youtu.be/9GV8rVksKRQ?si=qzhyyxv76pEAGC4A" target="_blank" style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 12px rgba(255,0,0,0.3); transition: all 0.3s ease;">
+                                <i class="fab fa-youtube" style="margin-right: 8px; font-size: 18px;"></i>
+                                Watch Demo Video on YouTube
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Information -->
+                <div class="about-info-item">
+                    <i class="fas fa-info-circle"></i>
+                    <div class="about-info-content">
+                        <h5>About the System</h5>
+                        <p>A.C.E. Scheduling System is an advanced automated class and event scheduling platform designed to streamline educational institution management. It provides efficient scheduling, resource allocation, and comprehensive administration tools.</p>
+                    </div>
+                </div>
+
+                <div class="about-info-item">
+                    <i class="fas fa-code-branch"></i>
+                    <div class="about-info-content">
+                        <h5>Version Information</h5>
+                        <p>Version 1.0.0 | Released January 2025</p>
+                    </div>
+                </div>
+
+                <div class="about-info-item">
+                    <i class="fas fa-users"></i>
+                    <div class="about-info-content">
+                        <h5>Development Team</h5>
+                        <p>Developed by Kurt and the A.C.E. Development Team</p>
+                    </div>
+                </div>
+
+                <div class="about-info-item">
+                    <i class="fas fa-envelope"></i>
+                    <div class="about-info-content">
+                        <h5>Contact Information</h5>
+                        <p>Email: support@acesched.com | Phone: +63 123 456 7890</p>
+                    </div>
+                </div>
+
+                <!-- Features -->
+                <div class="about-info-item">
+                    <i class="fas fa-star"></i>
+                    <div class="about-info-content">
+                        <h5>Key Features</h5>
+                        <p>
+                            • Automated class scheduling with conflict detection<br>
+                            • Resource management (rooms, instructors, sections)<br>
+                            • Curriculum and subject management<br>
+                            • Real-time announcements and notifications<br>
+                            • Comprehensive reporting and analytics
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Social Links -->
+                <div class="social-links">
+                    <a href="#" class="social-link" title="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="social-link" title="Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="social-link" title="LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="#" class="social-link" title="YouTube">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                    <a href="#" class="social-link" title="GitHub">
+                        <i class="fab fa-github"></i>
+                    </a>
+                </div>
+
+                <div style="text-align: center; margin-top: 24px; padding-top: 24px; border-top: 2px solid var(--border);">
+                    <p style="color: var(--text-muted); font-size: 13px;">
+                        © 2025 A.C.E. Scheduling System. All rights reserved.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal-overlay" id="logoutModal">
+        <div class="modal-content delete-modal-content">
+            <div class="modal-header delete-modal-header">
+                <h3><i class="fas fa-sign-out-alt"></i> Confirm Logout</h3>
+                <button class="modal-close" onclick="closeModal('logoutModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <p class="delete-warning-text">
+                    Are you sure you want to log out?
+                </p>
+                <p class="delete-warning-subtext">
+                    <i class="fas fa-info-circle"></i> You will need to log in again to access your dashboard.
+                </p>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-cancel" onclick="closeModal('logoutModal')">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <a href="{% url 'logout' %}" class="btn btn-confirm-delete" style="text-decoration: none;">
+                        <i class="fas fa-sign-out-alt"></i> Yes, Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // HAMBURGER MENU & SIDEBAR TOGGLE
+        // ============================================
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        // Toggle sidebar on hamburger click
+        hamburgerBtn.addEventListener('click', function() {
+            hamburgerBtn.classList.toggle('active');
+            sidebar.classList.toggle('active');
+            sidebarOverlay.classList.toggle('active');
+            document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : 'auto';
+        });
+
+        // Close sidebar when clicking overlay
+        sidebarOverlay.addEventListener('click', function() {
+            hamburgerBtn.classList.remove('active');
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        });
+
+        // Close sidebar when clicking a nav link (mobile)
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth <= 767) {
+                    hamburgerBtn.classList.remove('active');
+                    sidebar.classList.remove('active');
+                    sidebarOverlay.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        });
+
+        // ============================================
+        // PROFILE DROPDOWN
+        // ============================================
+        const profileTrigger = document.getElementById('profileTrigger');
+        const profileDropdown = document.getElementById('profileDropdown');
+
+        profileTrigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            profileTrigger.classList.toggle('active');
+            profileDropdown.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!profileTrigger.contains(e.target) && !profileDropdown.contains(e.target)) {
+                profileTrigger.classList.remove('active');
+                profileDropdown.classList.remove('show');
+            }
+        });
+
+        // ============================================
+        // MODAL FUNCTIONS
+        // ============================================
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            
+            // Close dropdown
+            profileTrigger.classList.remove('active');
+            profileDropdown.classList.remove('show');
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    closeModal(overlay.id);
+                }
+            });
+        });
+
+        // Close modal on ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.show').forEach(modal => {
+                    closeModal(modal.id);
+                });
+            }
+        });
+
+        // ============================================
+        // DARK MODE TOGGLE
+        // ============================================
+        function toggleDarkMode() {
+            const toggle = document.getElementById('darkModeToggle');
+            const body = document.body;
+            
+            toggle.classList.toggle('active');
+            body.classList.toggle('dark-mode');
+            
+            // Save preference to localStorage
+            const isDarkMode = body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+        }
+
+        // ============================================
+        // PROFILE PICTURE UPLOAD
+        // ============================================
+        const profilePictureInput = document.getElementById('profilePictureInput');
+        const profileImage = document.getElementById('profileImage');
+        const profileInitials = document.getElementById('profileInitials');
+        const avatarImage = document.getElementById('avatarImage');
+        const avatarInitials = document.getElementById('avatarInitials');
+
+        profilePictureInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imageUrl = e.target.result;
+                    
+                    // Update profile modal image
+                    profileImage.src = imageUrl;
+                    profileImage.style.display = 'block';
+                    profileInitials.style.display = 'none';
+                    
+                    // Update navbar avatar image
+                    avatarImage.src = imageUrl;
+                    avatarImage.style.display = 'block';
+                    avatarInitials.style.display = 'none';
+                    
+                    // Save to localStorage for persistence
+                    localStorage.setItem('profilePicture', imageUrl);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // ============================================
+        // LOAD SAVED PREFERENCES ON PAGE LOAD
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved profile picture
+            const savedPicture = localStorage.getItem('profilePicture');
+            if (savedPicture) {
+                profileImage.src = savedPicture;
+                profileImage.style.display = 'block';
+                profileInitials.style.display = 'none';
+                
+                avatarImage.src = savedPicture;
+                avatarImage.style.display = 'block';
+                avatarInitials.style.display = 'none';
+            }
+            
+            // Load dark mode preference
+            const darkModePreference = localStorage.getItem('darkMode');
+            if (darkModePreference === 'true') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('darkModeToggle').classList.add('active');
+            }
+        });
+
+        // ============================================
+        // TOGGLE SWITCH HANDLER
+        // ============================================
+        document.querySelectorAll('.toggle-switch').forEach(toggle => {
+            if (toggle.id !== 'darkModeToggle') {
+                toggle.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                });
+            }
+        });
+
+        // ============================================
+        // SAVE SETTINGS FUNCTION
+        // ============================================
+        function saveSettings() {
+            // Add your save settings logic here
+            alert('Settings saved successfully!');
+            closeModal('settingsModal');
+        }
+
+        // ============================================
+        // COUNTER ANIMATION FOR STATS
+        // ============================================
+        document.querySelectorAll('.counter').forEach(counter => {
+            const target = parseInt(counter.getAttribute('data-target'));
+            const duration = 2000;
+            const increment = target / (duration / 16);
+            let current = 0;
+
+            const updateCounter = () => {
+                current += increment;
+                if (current < target) {
+                    counter.textContent = Math.floor(current);
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    counter.textContent = target;
+                }
+            };
+
+            updateCounter();
+        });
+
+        // ============================================
+        // HANDLE WINDOW RESIZE
+        // ============================================
+        window.addEventListener('resize', function() {
+            // Close sidebar on resize if switching to desktop view
+            if (window.innerWidth > 767) {
+                hamburgerBtn.classList.remove('active');
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        });
+    </script>
+</body>
+</html>
