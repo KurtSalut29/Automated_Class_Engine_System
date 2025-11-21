@@ -1,0 +1,12 @@
+Django==5.2.5
+django-crispy-forms
+crispy-bootstrap5
+django-tailwind
+django-widget-tweaks
+django-multiselectfield
+psycopg2-binary
+mysqlclient
+gunicorn
+whitenoise
+python-decouple
+dj-database-url
