@@ -319,7 +319,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3><i class="fas fa-book"></i> <span id="modalSubjectTitle"></span></h3>
-                <span class="close" onclick="closeModal()">&times;</span>
+                <span class="close" onclick="closeSubjectModal()">&times;</span>
             </div>
             <div class="modal-body">
                 <div id="subjectDetailsContent">
@@ -371,6 +371,10 @@
         document.getElementById('subjectDetailsContent').innerHTML = content;
     }
 
+    function closeSubjectModal() {
+        document.getElementById('subjectModal').classList.remove('show');
+    }
+
     function closeModal() {
         document.getElementById('subjectModal').classList.remove('show');
     }
@@ -378,7 +382,7 @@
     // Close modal when clicking outside
     document.getElementById('subjectModal').addEventListener('click', function(e) {
         if (e.target === this) {
-            closeModal();
+            closeSubjectModal();
         }
     });
 
@@ -464,20 +468,36 @@ document.getElementById('filterForm').addEventListener('submit', function(e) {
         // LOGOUT MODAL
         // ============================================
         function openLogoutModal() {
-            document.getElementById('logoutModal').classList.add('show');
+            document.getElementById('logoutModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
         }
 
         function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('show');
+            document.getElementById(modalId).style.display = 'none';
+            document.body.style.overflow = 'auto';
         }
+
+        // Close modal when clicking outside
+        document.getElementById('logoutModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal('logoutModal');
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal('logoutModal');
+            }
+        });
     </script>
 
-     <!-- Logout Confirmation Modal -->
-    <div class="modal-overlay" id="logoutModal">
+    <!-- Logout Confirmation Modal -->
+    <div class="modal" id="logoutModal">
         <div class="modal-content delete-modal-content">
             <div class="modal-header delete-modal-header">
                 <h3><i class="fas fa-sign-out-alt"></i> Confirm Logout</h3>
-                <button class="modal-close" onclick="closeModal('logoutModal')"><i class="fas fa-times"></i></button>
+                <span class="close" onclick="closeModal('logoutModal')">&times;</span>
             </div>
             <div class="modal-body">
                 <p class="delete-warning-text">

@@ -28,6 +28,39 @@
             .navbar {
                 padding: 16px 20px;
                 padding-left: 70px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .navbar-brand {
+                font-size: 1.1rem;
+                flex: 1;
+            }
+            .profile-info {
+                display: none !important;
+            }
+            .profile-section {
+                min-width: auto !important;
+                flex-shrink: 0 !important;
+            }
+            .profile-trigger {
+                padding: 8px !important;
+                min-height: 44px !important;
+                justify-content: center !important;
+            }
+            .profile-avatar {
+                width: 36px !important;
+                height: 36px !important;
+                font-size: 14px !important;
+            }
+            .profile-arrow {
+                margin-left: 8px !important;
+                font-size: 12px !important;
+            }
+            .profile-dropdown {
+                right: 0 !important;
+                left: auto !important;
+                min-width: 180px !important;
             }
             .card {
                 margin: 16px;
@@ -114,8 +147,35 @@
             </div>
         </div>
 
-        <div class="navbar">
+        <div class="navbar" style="display: flex; justify-content: space-between; align-items: center;">
             <div class="navbar-brand">Public Class Schedules</div>
+            
+            <!-- Profile Section -->
+            <div class="profile-section">
+                <div class="profile-trigger" id="profileTrigger">
+                    <div class="profile-avatar">
+                        <span id="avatarInitials">G</span>
+                        <img id="avatarImage" src="" alt="Profile" style="display: none;">
+                    </div>
+                    <div class="profile-info">
+                        <div class="profile-name">Guest User</div>
+                        <div class="profile-role">Public Viewer</div>
+                    </div>
+                    <i class="fas fa-chevron-down profile-arrow"></i>
+                </div>
+
+                <!-- Dropdown Menu -->
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="dropdown-item" onclick="openModal('aboutModal')">
+                        <i class="fas fa-info-circle"></i>
+                        <span>About</span>
+                    </div>
+                    <div class="dropdown-item" onclick="window.location.href='{% url 'auth_page' %}'">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Login</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Filter Section -->
@@ -247,6 +307,147 @@
         {% endif %}
     </div>
 
+    <!-- About Modal -->
+    <div class="modal-overlay" id="aboutModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-info-circle"></i> About A.C.E. Scheduling System</h3>
+                <button class="modal-close" onclick="closeModal('aboutModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <!-- Logo and System Name -->
+                <div class="about-logo">
+                    <img src="{% static 'scheduler/images/Automated_Class_Scheduling_Logo-removebg-preview.png' %}" alt="A.C.E. Logo">
+                    <h2>A.C.E. Sched</h2>
+                    <p>Automated Class & Event Scheduling System</p>
+                </div>
+
+                <!-- System Poster -->
+                <div class="about-info-item">
+                    <i class="fas fa-image"></i>
+                    <div class="about-info-content">
+                        <h5>System Poster</h5>
+                        <div style="text-align: center; margin: 16px 0;">
+                            <img src="{% static 'scheduler/images/poster.png' %}" alt="A.C.E. System Poster" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Demo Video -->
+                <div class="about-info-item">
+                    <i class="fas fa-play-circle"></i>
+                    <div class="about-info-content">
+                        <h5>System Demo Video</h5>
+                        <div style="text-align: center; margin: 16px 0;">
+                            <a href="https://youtu.be/9GV8rVksKRQ?si=qzhyyxv76pEAGC4A" target="_blank" style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 12px rgba(255,0,0,0.3); transition: all 0.3s ease;">
+                                <i class="fab fa-youtube" style="margin-right: 8px; font-size: 18px;"></i>
+                                Watch Demo Video on YouTube
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Information -->
+                <div class="about-info-item">
+                    <i class="fas fa-info-circle"></i>
+                    <div class="about-info-content">
+                        <h5>About the System</h5>
+                        <p>A.C.E. Scheduling System is an advanced automated class and event scheduling platform designed to streamline educational institution management. It provides efficient scheduling, resource allocation, and comprehensive administration tools.</p>
+                    </div>
+                </div>
+
+                <div class="about-info-item">
+                    <i class="fas fa-code-branch"></i>
+                    <div class="about-info-content">
+                        <h5>Version Information</h5>
+                        <p>Version 1.0.0 | Released January 2025</p>
+                    </div>
+                </div>
+
+                <!-- Developer Section -->
+                <div class="developer-section">
+                    <div class="about-info-item" style="border: none; padding: 0;">
+                        <i class="fas fa-user-cog"></i>
+                        <div class="about-info-content">
+                            <h5>System Developer</h5>
+                            <p style="margin-bottom: 16px;">Meet the developer behind A.C.E. Scheduling System</p>
+                        </div>
+                    </div>
+
+                    <div class="developer-single-container">
+                        <!-- Developer Card - Add your image here -->
+                        <div class="developer-card">
+                            <div class="developer-image-container">
+                                <!-- Replace the src with your actual image path -->
+                                <img src="{% static 'scheduler/images/developer.jpg' %}" alt="Kurt - Developer" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="developer-image-placeholder" style="display: none;">K</div>
+                            </div>
+                            <div class="developer-name">Kurt</div>
+                            <div class="developer-role">Lead Developer & Creator</div>
+                            <div class="developer-description">
+                                Full-stack developer specializing in Django and modern web technologies. Creator of the A.C.E. Scheduling System, passionate about building efficient and user-friendly scheduling solutions for educational institutions.
+                            </div>
+                            <div class="developer-social">
+                                <a href="#" title="LinkedIn" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                                <a href="#" title="GitHub" target="_blank"><i class="fab fa-github"></i></a>
+                                <a href="mailto:kurt@acesched.com" title="Email"><i class="fas fa-envelope"></i></a>
+                                <a href="#" title="Portfolio" target="_blank"><i class="fas fa-globe"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="about-info-item">
+                    <i class="fas fa-envelope"></i>
+                    <div class="about-info-content">
+                        <h5>Contact Information</h5>
+                        <p>Email: support@acesched.com | Phone: +63 123 456 7890</p>
+                    </div>
+                </div>
+
+                <!-- Features -->
+                <div class="about-info-item">
+                    <i class="fas fa-star"></i>
+                    <div class="about-info-content">
+                        <h5>Key Features</h5>
+                        <p>
+                            • Automated class scheduling with conflict detection<br>
+                            • Resource management (rooms, instructors, sections)<br>
+                            • Curriculum and subject management<br>
+                            • Real-time announcements and notifications<br>
+                            • Comprehensive reporting and analytics
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Social Links -->
+                <div class="social-links">
+                    <a href="#" class="social-link" title="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="social-link" title="Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="social-link" title="LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="#" class="social-link" title="YouTube">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                    <a href="#" class="social-link" title="GitHub">
+                        <i class="fab fa-github"></i>
+                    </a>
+                </div>
+
+                <div style="text-align: center; margin-top: 24px; padding-top: 24px; border-top: 2px solid var(--border);">
+                    <p style="color: var(--text-muted); font-size: 13px;">
+                        © 2025 A.C.E. Scheduling System. All rights reserved.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ============================================
         // HAMBURGER MENU & SIDEBAR TOGGLE
@@ -295,6 +496,68 @@
             });
         }
 
+        // ============================================
+        // PROFILE DROPDOWN
+        // ============================================
+        const profileTrigger = document.getElementById('profileTrigger');
+        const profileDropdown = document.getElementById('profileDropdown');
+
+        if (profileTrigger && profileDropdown) {
+            profileTrigger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                profileTrigger.classList.toggle('active');
+                profileDropdown.classList.toggle('show');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!profileTrigger.contains(e.target) && !profileDropdown.contains(e.target)) {
+                    profileTrigger.classList.remove('active');
+                    profileDropdown.classList.remove('show');
+                }
+            });
+        }
+
+        // ============================================
+        // MODAL FUNCTIONS
+        // ============================================
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+                
+                // Close dropdown
+                if (profileTrigger) profileTrigger.classList.remove('active');
+                if (profileDropdown) profileDropdown.classList.remove('show');
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('show');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // Close modal when clicking outside
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    closeModal(overlay.id);
+                }
+            });
+        });
+
+        // Close modal on ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.show').forEach(modal => {
+                    closeModal(modal.id);
+                });
+            }
+        });
     </script>
 </body>
 </html>
