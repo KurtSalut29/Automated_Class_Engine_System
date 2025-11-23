@@ -258,7 +258,6 @@
   max-width: 500px;
 }
 
-
 .delete-warning-text {
   font-size: 15px;
   color: var(--text-dark);
@@ -286,8 +285,9 @@
 
 .modal-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
   margin-top: 20px;
   flex-wrap: wrap;
 }
@@ -313,6 +313,7 @@
   background: #e0e0e0;
   color: #333;
   box-shadow: none;
+  width: 210px;
 }
 
 .btn-cancel:hover {
@@ -324,6 +325,7 @@
   background: linear-gradient(135deg, #e74a3b 0%, #c82333 100%);
   color: var(--white);
   box-shadow: 0 4px 12px rgba(231, 74, 59, 0.3);
+  width: 210px;
 }
 
 .btn-confirm-delete:hover {
@@ -366,18 +368,12 @@ body.dark-mode .delete-warning-subtext {
 }
 
 /* ===============================
-   DEVELOPER SECTION STYLES (Single Developer)
+   DEVELOPER SECTION STYLES
 =============================== */
 .developer-section {
   margin-top: 24px;
   padding-top: 24px;
   border-top: 2px solid var(--border);
-}
-
-.developer-single-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 16px;
 }
 
 .developer-grid {
@@ -391,12 +387,10 @@ body.dark-mode .delete-warning-subtext {
   background: var(--white);
   border: 2px solid var(--border);
   border-radius: 12px;
-  padding: 24px;
+  padding: 20px;
   text-align: center;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  max-width: 400px;
-  width: 100%;
 }
 
 .developer-card:hover {
@@ -406,13 +400,13 @@ body.dark-mode .delete-warning-subtext {
 }
 
 .developer-image-container {
-  width: 140px;
-  height: 140px;
-  margin: 0 auto 20px;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 16px;
   border-radius: 50%;
   overflow: hidden;
   border: 4px solid var(--primary);
-  box-shadow: 0 4px 16px rgba(78, 115, 223, 0.25);
+  box-shadow: 0 4px 12px rgba(78, 115, 223, 0.2);
   position: relative;
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
 }
@@ -436,38 +430,39 @@ body.dark-mode .delete-warning-subtext {
 }
 
 .developer-name {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--text-dark);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .developer-role {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--primary);
   font-weight: 500;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .developer-description {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-muted);
-  line-height: 1.7;
-  margin-bottom: 20px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+  min-height: 60px;
 }
 
 .developer-social {
   display: flex;
   justify-content: center;
   gap: 12px;
-  margin-top: 16px;
+  margin-top: 12px;
 }
 
 .developer-social a {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -476,7 +471,7 @@ body.dark-mode .delete-warning-subtext {
   color: var(--primary);
   transition: all 0.3s ease;
   text-decoration: none;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .developer-social a:hover {
@@ -512,18 +507,14 @@ body.dark-mode .developer-social a:hover {
 
 /* Responsive Design for Developer Section */
 @media (max-width: 767px) {
-  .developer-single-container {
-    padding: 0 16px;
-  }
-
-  .developer-card {
-    max-width: 100%;
-    padding: 20px;
+  .developer-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .developer-image-container {
-    width: 120px;
-    height: 120px;
+    width: 100px;
+    height: 100px;
   }
 
   .developer-image-placeholder {
@@ -531,33 +522,23 @@ body.dark-mode .developer-social a:hover {
   }
 
   .developer-name {
-    font-size: 20px;
-  }
-
-  .developer-role {
-    font-size: 13px;
+    font-size: 16px;
   }
 
   .developer-description {
-    font-size: 13px;
-  }
-
-  .developer-social a {
-    width: 36px;
-    height: 36px;
-    font-size: 14px;
+    min-height: auto;
   }
 }
 
 @media (min-width: 768px) and (max-width: 1024px) {
-  .developer-card {
-    max-width: 450px;
+  .developer-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (min-width: 1025px) {
-  .developer-card {
-    max-width: 500px;
+  .developer-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
@@ -613,171 +594,6 @@ body.dark-mode .about-info-content h5 {
 
 body.dark-mode .about-info-content p {
   color: #a0a0a0;
-}
-
-/* Tech Badges */
-.tech-badge {
-    display: inline-block;
-    padding: 4px 12px;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-    color: white;
-    border-radius: 12px;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-body.dark-mode .tech-badge {
-    background: linear-gradient(135deg, #5dade2 0%, #4e73df 100%);
-}
-
-/* Timeline Small */
-.timeline-small {
-    margin-top: 12px;
-}
-
-.timeline-point {
-    padding: 8px 0;
-    padding-left: 20px;
-    position: relative;
-    font-size: 13px;
-    color: var(--text-muted);
-}
-
-.timeline-point::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 12px;
-    width: 8px;
-    height: 8px;
-    background: var(--primary);
-    border-radius: 50%;
-}
-
-.timeline-point::after {
-    content: '';
-    position: absolute;
-    left: 3.5px;
-    top: 20px;
-    width: 1px;
-    height: calc(100% + 8px);
-    background: var(--border);
-}
-
-.timeline-point:last-child::after {
-    display: none;
-}
-
-.timeline-point strong {
-    color: var(--text-dark);
-    font-weight: 600;
-}
-
-body.dark-mode .timeline-point strong {
-    color: #e0e0e0;
-}
-
-/* Achievements Grid */
-.achievements-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px;
-    margin-top: 12px;
-}
-
-.achievement-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    padding: 16px;
-    background: rgba(78, 115, 223, 0.05);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    text-align: center;
-    transition: all 0.3s ease;
-}
-
-.achievement-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(78, 115, 223, 0.15);
-    border-color: var(--primary);
-}
-
-.achievement-item i {
-    font-size: 24px;
-    color: var(--primary);
-}
-
-.achievement-item span {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-dark);
-}
-
-body.dark-mode .achievement-item {
-    background: rgba(78, 115, 223, 0.1);
-    border-color: #2d3748;
-}
-
-body.dark-mode .achievement-item span {
-    color: #e0e0e0;
-}
-
-/* Resource Links */
-.resource-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    background: var(--white);
-    border: 2px solid var(--border);
-    border-radius: 6px;
-    color: var(--primary);
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.resource-link:hover {
-    background: var(--primary);
-    color: white;
-    border-color: var(--primary);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(78, 115, 223, 0.2);
-}
-
-body.dark-mode .resource-link {
-    background: #16213e;
-    border-color: #2d3748;
-    color: #5dade2;
-}
-
-body.dark-mode .resource-link:hover {
-    background: var(--primary);
-    color: white;
-}
-
-/* Quote Styling */
-.about-info-item .fa-quote-left {
-    color: var(--primary);
-    opacity: 0.3;
-    font-size: 28px;
-}
-
-/* Mobile Responsive */
-@media (max-width: 767px) {
-    .achievements-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .resource-link {
-        width: 100%;
-        justify-content: center;
-    }
 }
     </style>
 </head>
@@ -945,7 +761,7 @@ body.dark-mode .resource-link:hover {
                 <div class="quick-actions-grid-new">
                     <a href="{% url 'manage_instructors' %}" class="quick-action-item">
                         <i class="fas fa-user-plus"></i>
-                        <span>View Instructor</span>
+                        <span>Add Instructor</span>
                     </a>
                     <a href="{% url 'manage_sections' %}" class="quick-action-item">
                         <i class="fas fa-layer-group"></i>
@@ -1268,236 +1084,139 @@ body.dark-mode .resource-link:hover {
                 <h3><i class="fas fa-info-circle"></i> About A.C.E. Scheduling System</h3>
                 <button class="modal-close" onclick="closeModal('aboutModal')"><i class="fas fa-times"></i></button>
             </div>
-           <!-- Replace your About Modal body with this enhanced version -->
-<div class="modal-body">
-    <!-- Logo and System Name -->
-    <div class="about-logo">
-        <img src="{% static 'scheduler/images/Automated_Class_Scheduling_Logo-removebg-preview.png' %}" alt="A.C.E. Logo">
-        <h2>A.C.E. Sched</h2>
-        <p>Automated Class Engine Scheduling System</p>
-    </div>
-
-    <!-- System Poster -->
-    <div class="about-info-item">
-        <i class="fas fa-image"></i>
-        <div class="about-info-content">
-            <h5>System Poster</h5>
-            <div style="text-align: center; margin: 16px 0;">
-                <img src="{% static 'scheduler/images/poster.png' %}" alt="A.C.E. System Poster" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-            </div>
-        </div>
-    </div>
-
-    <!-- Demo Video -->
-    <div class="about-info-item">
-        <i class="fas fa-play-circle"></i>
-        <div class="about-info-content">
-            <h5>System Demo Video</h5>
-            <div style="text-align: center; margin: 16px 0;">
-                <a href="https://youtu.be/9GV8rVksKRQ?si=qzhyyxv76pEAGC4A" target="_blank" style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 12px rgba(255,0,0,0.3); transition: all 0.3s ease;">
-                    <i class="fab fa-youtube" style="margin-right: 8px; font-size: 18px;"></i>
-                    Watch Demo Video on YouTube
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- System Information -->
-    <div class="about-info-item">
-        <i class="fas fa-info-circle"></i>
-        <div class="about-info-content">
-            <h5>About the System</h5>
-            <p>A.C.E. Scheduling System is an advanced automated class and event scheduling platform designed to streamline educational institution management. It provides efficient scheduling, resource allocation, and comprehensive administration tools.</p>
-        </div>
-    </div>
-
-    <div class="about-info-item">
-        <i class="fas fa-code-branch"></i>
-        <div class="about-info-content">
-            <h5>Version Information</h5>
-            <p>Version 1.0.0 | Released November 2025</p>
-        </div>
-    </div>
-
-    <!-- Features -->
-    <div class="about-info-item">
-        <i class="fas fa-star"></i>
-        <div class="about-info-content">
-            <h5>Key Features</h5>
-            <p>
-                • Automated class scheduling with conflict detection<br>
-                • Resource management (rooms, instructors, sections)<br>
-                • Curriculum and subject management<br>
-                • Real-time announcements and notifications<br>
-                • Comprehensive reporting and analytics
-            </p>
-        </div>
-    </div>
-
-    <!-- Developer Section -->
-    <div class="developer-section">
-        <div class="about-info-item" style="border: none; padding: 0;">
-            <i class="fas fa-user-cog"></i>
-            <div class="about-info-content">
-                <h5>System Developer</h5>
-                <p style="margin-bottom: 16px;">Meet the developer behind A.C.E. Scheduling System</p>
-            </div>
-        </div>
-
-        <div class="developer-single-container">
-            <div class="developer-card">
-                <div class="developer-image-container">
-                    <img src="{% static 'scheduler/images/developer.jpg' %}" alt="Kurt - Developer" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div class="developer-image-placeholder" style="display: none;">K</div>
+            <div class="modal-body">
+                <!-- Logo and System Name -->
+                <div class="about-logo">
+                    <img src="{% static 'scheduler/images/Automated_Class_Scheduling_Logo-removebg-preview.png' %}" alt="A.C.E. Logo">
+                    <h2>A.C.E. Sched</h2>
+                    <p>Automated Class & Event Scheduling System</p>
                 </div>
-                <div class="developer-name">Kurt Salut</div>
-                <div class="developer-role">Lead Developer & Creator</div>
-                <div class="developer-description">
-                    Full-stack developer specializing in Django and modern web technologies. Creator of the A.C.E. Scheduling System, passionate about building efficient and user-friendly scheduling solutions for educational institutions.
-                    
-                    <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
-                        <strong style="color: var(--primary); font-size: 12px;">Technologies Used:</strong>
-                        <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; justify-content: center;">
-                            <span class="tech-badge">Django</span>
-                            <span class="tech-badge">Python</span>
-                            <span class="tech-badge">JavaScript</span>
-                            <span class="tech-badge">HTML/CSS</span>
-                            <span class="tech-badge">PostgreSQL</span>
+
+                <!-- System Poster -->
+                <div class="about-info-item">
+                    <i class="fas fa-image"></i>
+                    <div class="about-info-content">
+                        <h5>System Poster</h5>
+                        <div style="text-align: center; margin: 16px 0;">
+                            <img src="{% static 'scheduler/images/poster.png' %}" alt="A.C.E. System Poster" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
                         </div>
                     </div>
                 </div>
-                <div class="developer-social">
-                    <a href="#" title="LinkedIn" target="_blank"><i class="fab fa-linkedin-in"></i></a>
-                    <a href="#" title="GitHub" target="_blank"><i class="fab fa-github"></i></a>
-                    <a href="mailto:kurtsalut18@gmail.com" title="Email"><i class="fas fa-envelope"></i></a>
-                    <a href="#" title="Portfolio" target="_blank"><i class="fas fa-globe"></i></a>
+
+                <!-- Demo Video -->
+                <div class="about-info-item">
+                    <i class="fas fa-play-circle"></i>
+                    <div class="about-info-content">
+                        <h5>System Demo Video</h5>
+                        <div style="text-align: center; margin: 16px 0;">
+                            <a href="https://youtu.be/9GV8rVksKRQ?si=qzhyyxv76pEAGC4A" target="_blank" style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 12px rgba(255,0,0,0.3); transition: all 0.3s ease;">
+                                <i class="fab fa-youtube" style="margin-right: 8px; font-size: 18px;"></i>
+                                Watch Demo Video on YouTube
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Information -->
+                <div class="about-info-item">
+                    <i class="fas fa-info-circle"></i>
+                    <div class="about-info-content">
+                        <h5>About the System</h5>
+                        <p>A.C.E. Scheduling System is an advanced automated class and event scheduling platform designed to streamline educational institution management. It provides efficient scheduling, resource allocation, and comprehensive administration tools.</p>
+                    </div>
+                </div>
+
+                <div class="about-info-item">
+                    <i class="fas fa-code-branch"></i>
+                    <div class="about-info-content">
+                        <h5>Version Information</h5>
+                        <p>Version 1.0.0 | Released January 2025</p>
+                    </div>
+                </div>
+
+                <!-- Developer Section -->
+                <div class="developer-section">
+                    <div class="about-info-item" style="border: none; padding: 0;">
+                        <i class="fas fa-user-cog"></i>
+                        <div class="about-info-content">
+                            <h5>System Developer</h5>
+                            <p style="margin-bottom: 16px;">Meet the developer behind A.C.E. Scheduling System</p>
+                        </div>
+                    </div>
+
+                    <div class="developer-single-container">
+                        <!-- Developer Card - Add your image here -->
+                        <div class="developer-card">
+                            <div class="developer-image-container">
+                                <!-- Replace the src with your actual image path -->
+                                <img src="{% static 'scheduler/images/developer.jpg' %}" alt="Kurt - Developer" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="developer-image-placeholder" style="display: none;">K</div>
+                            </div>
+                            <div class="developer-name">Kurt</div>
+                            <div class="developer-role">Lead Developer & Creator</div>
+                            <div class="developer-description">
+                                Full-stack developer specializing in Django and modern web technologies. Creator of the A.C.E. Scheduling System, passionate about building efficient and user-friendly scheduling solutions for educational institutions.
+                            </div>
+                            <div class="developer-social">
+                                <a href="#" title="LinkedIn" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                                <a href="#" title="GitHub" target="_blank"><i class="fab fa-github"></i></a>
+                                <a href="mailto:kurt@acesched.com" title="Email"><i class="fas fa-envelope"></i></a>
+                                <a href="#" title="Portfolio" target="_blank"><i class="fas fa-globe"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="about-info-item">
+                    <i class="fas fa-envelope"></i>
+                    <div class="about-info-content">
+                        <h5>Contact Information</h5>
+                        <p>Email: support@acesched.com | Phone: +63 123 456 7890</p>
+                    </div>
+                </div>
+
+                <!-- Features -->
+                <div class="about-info-item">
+                    <i class="fas fa-star"></i>
+                    <div class="about-info-content">
+                        <h5>Key Features</h5>
+                        <p>
+                            • Automated class scheduling with conflict detection<br>
+                            • Resource management (rooms, instructors, sections)<br>
+                            • Curriculum and subject management<br>
+                            • Real-time announcements and notifications<br>
+                            • Comprehensive reporting and analytics
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Social Links -->
+                <div class="social-links">
+                    <a href="#" class="social-link" title="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="social-link" title="Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="social-link" title="LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="#" class="social-link" title="YouTube">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                    <a href="#" class="social-link" title="GitHub">
+                        <i class="fab fa-github"></i>
+                    </a>
+                </div>
+
+                <div style="text-align: center; margin-top: 24px; padding-top: 24px; border-top: 2px solid var(--border);">
+                    <p style="color: var(--text-muted); font-size: 13px;">
+                        © 2025 A.C.E. Scheduling System. All rights reserved.
+                    </p>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Developer's Message -->
-    <div class="about-info-item">
-        <i class="fas fa-quote-left"></i>
-        <div class="about-info-content">
-            <h5>Developer's Message</h5>
-            <p style="font-style: italic; color: var(--text-muted); line-height: 1.8;">
-                "A.C.E. Scheduling System was born from the need to simplify and automate the complex process of academic scheduling. My goal was to create a solution that saves time, reduces conflicts, and empowers educational institutions to focus on what matters most - quality education."
-            </p>
-        </div>
-    </div>
-
-    <!-- Development Timeline -->
-    <div class="about-info-item">
-        <i class="fas fa-history"></i>
-        <div class="about-info-content">
-            <h5>Development Journey</h5>
-            <div class="timeline-small">
-                <div class="timeline-point">
-                    <strong>November 2024</strong> - Project Inception & Planning
-                </div>
-                <div class="timeline-point">
-                    <strong>December 2024</strong> - Core Development & Testing
-                </div>
-                <div class="timeline-point">
-                    <strong>January 2025</strong> - Beta Release & Refinement
-                </div>
-                <div class="timeline-point">
-                    <strong>November 2025</strong> - Official Launch v1.0.0
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Project Achievements -->
-    <div class="about-info-item">
-        <i class="fas fa-trophy"></i>
-        <div class="about-info-content">
-            <h5>Project Achievements</h5>
-            <div class="achievements-grid">
-                <div class="achievement-item">
-                    <i class="fas fa-code"></i>
-                    <span>10,000+ Lines of Code</span>
-                </div>
-                <div class="achievement-item">
-                    <i class="fas fa-bug"></i>
-                    <span>99.9% Bug-Free</span>
-                </div>
-                <div class="achievement-item">
-                    <i class="fas fa-clock"></i>
-                    <span>500+ Hours</span>
-                </div>
-                <div class="achievement-item">
-                    <i class="fas fa-users"></i>
-                    <span>Built for Educators</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Resources -->
-    <div class="about-info-item">
-        <i class="fas fa-book"></i>
-        <div class="about-info-content">
-            <h5>Resources & Documentation</h5>
-            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px;">
-                <a href="#" class="resource-link">
-                    <i class="fas fa-file-alt"></i> User Manual
-                </a>
-                <a href="#" class="resource-link">
-                    <i class="fas fa-question-circle"></i> FAQ
-                </a>
-                <a href="#" class="resource-link">
-                    <i class="fas fa-headset"></i> Support
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- License -->
-    <div class="about-info-item">
-        <i class="fas fa-certificate"></i>
-        <div class="about-info-content">
-            <h5>License & Usage</h5>
-            <p>This system is proprietary software developed for educational institutions. All rights reserved. For licensing inquiries, please contact the developer.</p>
-        </div>
-    </div>
-
-    <!-- Contact Information -->
-    <div class="about-info-item">
-        <i class="fas fa-envelope"></i>
-        <div class="about-info-content">
-            <h5>Contact Information</h5>
-            <p>Email: kurtsalut18@gmail.com | Phone: +63 9464890898</p>
-        </div>
-    </div>
-
-    <!-- Social Links -->
-    <div class="social-links">
-        <a href="#" class="social-link" title="Facebook">
-            <i class="fab fa-facebook-f"></i>
-        </a>
-        <a href="#" class="social-link" title="Twitter">
-            <i class="fab fa-twitter"></i>
-        </a>
-        <a href="#" class="social-link" title="LinkedIn">
-            <i class="fab fa-linkedin-in"></i>
-        </a>
-        <a href="#" class="social-link" title="YouTube">
-            <i class="fab fa-youtube"></i>
-        </a>
-        <a href="#" class="social-link" title="GitHub">
-            <i class="fab fa-github"></i>
-        </a>
-    </div>
-
-    <!-- Copyright -->
-    <div style="text-align: center; margin-top: 24px; padding-top: 24px; border-top: 2px solid var(--border);">
-        <p style="color: var(--text-muted); font-size: 13px;">
-            © 2025 A.C.E. Scheduling System. All rights reserved.
-        </p>
-    </div>
-</div>
 
     <!-- Logout Confirmation Modal -->
     <div class="modal" id="logoutModal">
