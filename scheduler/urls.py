@@ -100,5 +100,6 @@ urlpatterns = [
 
     path('public/schedule/', public_schedule_view, name='public_schedule'),
     path('api/room-schedule/<int:room_id>/', views.room_schedule_api, name='room_schedule_api'),
+    path('check-room-availability/', views.check_room_availability, name='check_room_availability'),
 
 ]

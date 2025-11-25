@@ -29,6 +29,20 @@ from django.db.models import Q
 from scheduler.models import User, Instructor, Department
 from django.http import JsonResponse
 import json
+from django.views.decorators.csrf import csrf_exempt
+
+def get_available_times(room):
+    """Get available time slots for a room"""
+    occupied_times = []
+    for subject in room.subjects.all():
+        if subject.start_time and subject.end_time:
+            time_str = f"{subject.start_time.strftime('%I:%M %p')} - {subject.end_time.strftime('%I:%M %p')}"
+            occupied_times.append(time_str)
+    
+    if not occupied_times:
+        return "All day available"
+    
+    return f"Occupied: {', '.join(occupied_times[:2])}{'...' if len(occupied_times) > 2 else ''}"
 
 from django.db import models
 
@@ -1290,6 +1304,48 @@ def room_schedule_api(request, room_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+# API endpoint for checking room availability
+@login_required
+def check_room_availability(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST method required'}, status=405)
+    
+    try:
+        data = json.loads(request.body)
+        room_id = data.get('room_id')
+        start_time = data.get('start_time')
+        end_time = data.get('end_time')
+        days = data.get('days', [])
+        
+        if not all([room_id, start_time, end_time, days]):
+            return JsonResponse({'available': False, 'error': 'Missing parameters'})
+        
+        room = Room.objects.get(id=room_id)
+        
+        # Convert time strings to time objects
+        from datetime import datetime
+        start_time_obj = datetime.strptime(start_time, '%I:%M %p').time()
+        end_time_obj = datetime.strptime(end_time, '%I:%M %p').time()
+        
+        # Check for conflicts
+        for day in days:
+            conflicts = Subject.objects.filter(
+                room=room,
+                day__icontains=day,
+                start_time__lt=end_time_obj,
+                end_time__gt=start_time_obj
+            )
+            
+            if conflicts.exists():
+                return JsonResponse({'available': False})
+        
+        return JsonResponse({'available': True})
+        
+    except Room.DoesNotExist:
+        return JsonResponse({'available': False, 'error': 'Room not found'})
+    except Exception as e:
+        return JsonResponse({'available': False, 'error': str(e)})
+
 # Edit room
 def edit_room(request, room_id):
     room = get_object_or_404(Room, id=room_id)
@@ -1394,8 +1450,19 @@ def manage_curriculum(request):
             'other_departments': instructors_other
         }
 
-        rooms_same_dept = Room.objects.filter(department=current_department).order_by('room_name')
-        rooms_other = Room.objects.exclude(department=current_department).select_related('department').order_by('department__name', 'room_name')
+        from django.db.models import Count
+        rooms_same_dept = Room.objects.filter(department=current_department).annotate(
+            schedule_count=Count('subjects')
+        ).prefetch_related('subjects').order_by('room_name')
+        rooms_other = Room.objects.exclude(department=current_department).select_related('department').annotate(
+            schedule_count=Count('subjects')
+        ).prefetch_related('subjects').order_by('department__name', 'room_name')
+        
+        # Add available times for each room
+        for room in rooms_same_dept:
+            room.available_times = get_available_times(room)
+        for room in rooms_other:
+            room.available_times = get_available_times(room)
 
         available_rooms = {
             'current_department': {'name': current_department.name, 'rooms': rooms_same_dept},
@@ -1406,9 +1473,17 @@ def manage_curriculum(request):
             'current_department': None,
             'other_departments': Instructor.objects.select_related("user", "department").order_by("department__name")
         }
+        from django.db.models import Count
+        rooms_other = Room.objects.select_related('department').annotate(
+            schedule_count=Count('subjects')
+        ).prefetch_related('subjects').order_by('department__name', 'room_name')
+        
+        for room in rooms_other:
+            room.available_times = get_available_times(room)
+            
         available_rooms = {
             'current_department': None,
-            'other_departments': Room.objects.select_related('department').order_by('department__name', 'room_name')
+            'other_departments': rooms_other
         }
 
     # =========================

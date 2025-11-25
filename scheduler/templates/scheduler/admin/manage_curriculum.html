@@ -524,25 +524,13 @@ body.dark-mode .btn-cancel-dark:hover {
           </div>
           <div>
             <label for="room">Room</label>
-            <select name="room" id="room" required>
-              <option value="">-- Select Room --</option>
-              {% if available_rooms.current_department %}
-                <optgroup label="{{ available_rooms.current_department.name }} Department">
-                  {% for room in available_rooms.current_department.rooms %}
-                    <option value="{{ room.id }}">{{ room.room_name }}</option>
-                  {% empty %}
-                    <option disabled>No rooms available in this department.</option>
-                  {% endfor %}
-                </optgroup>
-              {% endif %}
-              {% if available_rooms.other_departments %}
-                <optgroup label="Other Departments">
-                  {% for room in available_rooms.other_departments %}
-                    <option value="{{ room.id }}">{{ room.room_name }} ({{ room.department.name }})</option>
-                  {% endfor %}
-                </optgroup>
-              {% endif %}
-            </select>
+            <div class="room-selector">
+              <input type="hidden" name="room" id="selectedRoomId" required>
+              <button type="button" class="room-select-btn" id="roomSelectBtn" onclick="openRoomModal()">
+                <span id="selectedRoomText">-- Select Room --</span>
+                <i class="fas fa-chevron-down"></i>
+              </button>
+            </div>
           </div>
           <div>
             <label for="instructor">Instructor</label>
@@ -690,6 +678,101 @@ body.dark-mode .btn-cancel-dark:hover {
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Room Selection Modal -->
+  <div class="modal" id="roomModal">
+    <div class="modal-content" style="max-width: 1000px;">
+      <div class="modal-header">
+        <h3><i class="fas fa-door-open"></i> Select Room</h3>
+        <span class="close" onclick="closeRoomModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <!-- Department Filter Buttons -->
+        <div class="dept-filter-btns">
+          <button type="button" class="dept-btn active" onclick="filterDepartment('current')">
+            <i class="fas fa-home"></i> Current Department
+          </button>
+          <button type="button" class="dept-btn" onclick="filterDepartment('others')">
+            <i class="fas fa-building"></i> Other Departments
+          </button>
+          <button type="button" class="dept-btn" onclick="filterDepartment('all')">
+            <i class="fas fa-th"></i> All Rooms
+          </button>
+        </div>
+
+        {% if available_rooms.current_department %}
+        <div class="room-section" id="currentDept">
+          <h4>{{ available_rooms.current_department.name }} Department</h4>
+          <div class="room-grid">
+            {% for room in available_rooms.current_department.rooms %}
+            <div class="room-card selectable" onclick="selectRoom({{ room.id }}, '{{ room.room_name }}', '{{ room.department.name }}')">
+              <div class="room-card-header">
+                <h5>
+                  <i class="fas {% if room.room_type == 'LABORATORY' %}fa-flask{% else %}fa-chalkboard{% endif %}"></i>
+                  {{ room.room_name }}
+                </h5>
+                <div class="room-badges">
+                  <span class="room-type-badge {% if room.room_type == 'LABORATORY' %}lab{% else %}lecture{% endif %}">
+                    {{ room.get_room_type_display }}
+                  </span>
+                  <span class="availability-badge {% if room.schedule_count > 0 %}occupied{% else %}available{% endif %}">
+                    <i class="fas {% if room.schedule_count > 0 %}fa-calendar-times{% else %}fa-calendar-check{% endif %}"></i>
+                    {% if room.schedule_count > 0 %}{{ room.schedule_count }} Schedule(s){% else %}Available{% endif %}
+                  </span>
+                </div>
+              </div>
+              <div class="room-card-body">
+                <div class="room-info">
+                  <span><i class="fas fa-users"></i> {{ room.capacity }}</span>
+                  <span><i class="fas fa-building"></i> Floor {{ room.floor }}</span>
+                  <span><i class="fas fa-clock"></i> {{ room.available_times }}</span>
+                </div>
+              </div>
+            </div>
+            {% empty %}
+            <p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">No rooms available in this department.</p>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+        
+        {% if available_rooms.other_departments %}
+        <div class="room-section" id="otherDepts" style="display: none;">
+          <h4>Other Departments</h4>
+          <div class="room-grid">
+            {% for room in available_rooms.other_departments %}
+            <div class="room-card selectable" onclick="selectRoom({{ room.id }}, '{{ room.room_name }}', '{{ room.department.name }}')">
+              <div class="room-card-header">
+                <h5>
+                  <i class="fas {% if room.room_type == 'LABORATORY' %}fa-flask{% else %}fa-chalkboard{% endif %}"></i>
+                  {{ room.room_name }}
+                </h5>
+                <div class="room-badges">
+                  <span class="room-type-badge {% if room.room_type == 'LABORATORY' %}lab{% else %}lecture{% endif %}">
+                    {{ room.get_room_type_display }}
+                  </span>
+                  <span class="availability-badge {% if room.schedule_count > 0 %}occupied{% else %}available{% endif %}">
+                    <i class="fas {% if room.schedule_count > 0 %}fa-calendar-times{% else %}fa-calendar-check{% endif %}"></i>
+                    {% if room.schedule_count > 0 %}{{ room.schedule_count }} Schedule(s){% else %}Available{% endif %}
+                  </span>
+                </div>
+              </div>
+              <div class="room-card-body">
+                <div class="room-info">
+                  <span><i class="fas fa-users"></i> {{ room.capacity }}</span>
+                  <span><i class="fas fa-building"></i> Floor {{ room.floor }}</span>
+                  <span><i class="fas fa-tag"></i> {{ room.department.name }}</span>
+                  <span><i class="fas fa-clock"></i> {{ room.available_times }}</span>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -872,6 +955,107 @@ body.dark-mode .btn-cancel-dark:hover {
   document.getElementById('logoutModal').addEventListener('click', function(e) {
     if (e.target === this) {
       closeLogoutModal();
+    }
+  });
+
+  // ============================================
+  // ROOM SELECTION MODAL
+  // ============================================
+  function openRoomModal() {
+    document.getElementById('roomModal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeRoomModal() {
+    document.getElementById('roomModal').classList.remove('show');
+    document.body.style.overflow = 'auto';
+  }
+
+  function selectRoom(roomId, roomName, departmentName) {
+    document.getElementById('selectedRoomId').value = roomId;
+    document.getElementById('selectedRoomText').textContent = `${roomName} (${departmentName})`;
+    document.getElementById('roomSelectBtn').classList.add('selected');
+    closeRoomModal();
+  }
+
+  function filterDepartment(type) {
+    const currentDept = document.getElementById('currentDept');
+    const otherDepts = document.getElementById('otherDepts');
+    const buttons = document.querySelectorAll('.dept-btn');
+    
+    buttons.forEach(btn => btn.classList.remove('active'));
+    
+    if (type === 'current') {
+      currentDept.style.display = 'block';
+      otherDepts.style.display = 'none';
+      buttons[0].classList.add('active');
+    } else if (type === 'others') {
+      currentDept.style.display = 'none';
+      otherDepts.style.display = 'block';
+      buttons[1].classList.add('active');
+    } else {
+      currentDept.style.display = 'block';
+      otherDepts.style.display = 'block';
+      buttons[2].classList.add('active');
+    }
+  }
+
+  function checkRoomAvailability() {
+    const timeSelect = document.getElementById('time-select');
+    const dayCheckboxes = document.querySelectorAll('input[name="day"]:checked');
+    
+    if (!timeSelect || !timeSelect.value || dayCheckboxes.length === 0) {
+      document.querySelectorAll('.availability-badge').forEach(badge => {
+        badge.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Select Time & Day';
+        badge.className = 'availability-badge occupied';
+      });
+      return;
+    }
+
+    const [startTime, endTime] = timeSelect.value.split(' - ');
+    const selectedDays = Array.from(dayCheckboxes).map(cb => cb.value);
+    
+    document.querySelectorAll('.room-card').forEach(card => {
+      const roomId = card.onclick.toString().match(/selectRoom\((\d+)/)?.[1];
+      if (!roomId) return;
+      
+      const badge = document.getElementById(`availability-${roomId}`);
+      if (!badge) return;
+      
+      fetch('/check-room-availability/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({
+          room_id: roomId,
+          start_time: startTime,
+          end_time: endTime,
+          days: selectedDays
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.available) {
+          badge.innerHTML = '<i class="fas fa-calendar-check"></i> Available';
+          badge.className = 'availability-badge available';
+        } else {
+          badge.innerHTML = '<i class="fas fa-calendar-times"></i> Conflict';
+          badge.className = 'availability-badge occupied';
+        }
+      })
+      .catch(() => {
+        badge.innerHTML = '<i class="fas fa-question"></i> Unknown';
+        badge.className = 'availability-badge occupied';
+      });
+    });
+  }
+
+  // Close room modal when clicking outside
+  document.getElementById('roomModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeRoomModal();
     }
   });
 
