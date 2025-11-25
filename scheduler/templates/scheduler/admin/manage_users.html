@@ -726,13 +726,13 @@ body.dark-mode .btn-cancel:hover {
             <div class="toast-container">
                 {% for message in messages %}
                 {% if message.tags == 'success' %}
-                <div class="toast toast-success">{{ message }}</div>
+                <div class="toast toast-success auto-hide">{{ message }}</div>
                 {% elif message.tags == 'error' %}
-                <div class="toast toast-error">{{ message }}</div>
+                <div class="toast toast-error auto-hide">{{ message }}</div>
                 {% elif message.tags == 'warning' %}
-                <div class="toast toast-warning">{{ message }}</div>
+                <div class="toast toast-warning auto-hide">{{ message }}</div>
                 {% else %}
-                <div class="toast toast-info">{{ message }}</div>
+                <div class="toast toast-info auto-hide">{{ message }}</div>
                 {% endif %}
                 {% endfor %}
             </div>
@@ -1163,11 +1163,15 @@ body.dark-mode .btn-cancel:hover {
                 selectAllCheckbox.addEventListener('change', function() {
                     const isChecked = this.checked;
                     userCheckboxes.forEach(checkbox => {
-                        checkbox.checked = isChecked;
-                        if (isChecked) {
-                            checkbox.closest('tr').classList.add('selected');
-                        } else {
-                            checkbox.closest('tr').classList.remove('selected');
+                        const row = checkbox.closest('tr');
+                        // Only select checkboxes for visible rows
+                        if (row.style.display !== 'none') {
+                            checkbox.checked = isChecked;
+                            if (isChecked) {
+                                row.classList.add('selected');
+                            } else {
+                                row.classList.remove('selected');
+                            }
                         }
                     });
                 });
@@ -1181,8 +1185,12 @@ body.dark-mode .btn-cancel:hover {
                         this.closest('tr').classList.remove('selected');
                     }
                     
-                    const allChecked = Array.from(userCheckboxes).every(cb => cb.checked);
-                    const someChecked = Array.from(userCheckboxes).some(cb => cb.checked);
+                    // Only consider visible checkboxes
+                    const visibleCheckboxes = Array.from(userCheckboxes).filter(cb => 
+                        cb.closest('tr').style.display !== 'none'
+                    );
+                    const allChecked = visibleCheckboxes.every(cb => cb.checked);
+                    const someChecked = visibleCheckboxes.some(cb => cb.checked);
                     
                     if (selectAllCheckbox) {
                         selectAllCheckbox.checked = allChecked;
@@ -1194,12 +1202,12 @@ body.dark-mode .btn-cancel:hover {
             // ============================================
             // TOAST AUTO-DISMISS
             // ============================================
-            const toasts = document.querySelectorAll('.toast, .toast-success, .toast-error, .toast-warning, .toast-info');
+            const toasts = document.querySelectorAll('.toast.auto-hide');
             toasts.forEach(toast => {
                 setTimeout(() => {
                     toast.style.animation = 'fadeOut 0.5s ease forwards';
                     setTimeout(() => toast.remove(), 500);
-                }, 5000);
+                }, 5000); // Auto-hide after 5 seconds
             });
             
             // ============================================

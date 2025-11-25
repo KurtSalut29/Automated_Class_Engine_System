@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="{% static 'scheduler/css/admin/darkmode.css' %}">
     <script src="{% static 'scheduler/js/global_darkmode.js' %}" defer></script>
     <script src="{% static 'scheduler/js/script.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* Additional responsive styles for instructor dashboard */
         @media (max-width: 767px) {
@@ -536,6 +537,41 @@
 
             updateCounter();
         });
+
+        // ============================================
+        // MINI DOUGHNUT CHARTS
+        // ============================================
+        function createMiniChart(id, value, color) {
+            const canvas = document.getElementById(id);
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: [value, 100 - value],
+                            backgroundColor: [color, '#e9ecef'],
+                            borderWidth: 0,
+                        }]
+                    },
+                    options: {
+                        cutout: '75%',
+                        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                        rotation: -90,
+                        circumference: 180,
+                    }
+                });
+            }
+        }
+
+        // Create mini charts with different colors
+        const subjects = {{ total_subjects|default:0 }};
+        const sections = {{ total_sections|default:0 }};
+        const hours = {{ total_hours|default:0 }};
+        
+        createMiniChart('chart_subjects', Math.min(subjects * 10, 100), '#e74a3b');
+        createMiniChart('chart_sections', Math.min(sections * 20, 100), '#36b9cc');
+        createMiniChart('chart_hours', Math.min(hours * 2, 100), '#f6c23e');
 
         // ============================================
         // SAVE SETTINGS FUNCTION

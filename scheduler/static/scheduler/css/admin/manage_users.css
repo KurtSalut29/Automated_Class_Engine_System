@@ -276,7 +276,7 @@ nav.sidebar-nav a.active {
   min-width: 300px;
   font-weight: 500;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-  animation: slideInRight 0.3s ease, fadeOut 0.5s ease 4.5s forwards;
+  animation: slideInRight 0.3s ease;
   border-left: 4px solid;
   text-align: left;
 }

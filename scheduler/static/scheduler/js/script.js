@@ -90,25 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
 //End of dashboard script
 
 document.addEventListener("DOMContentLoaded", () => {
-  // -----------------------------
-  // Toast / Notification Setup
-  // -----------------------------
-  const toastContainer = document.createElement("div");
-  toastContainer.id = "toastContainer";
-  toastContainer.className = "toast-container";
-  const toast = document.createElement("div");
-  toast.id = "toastMessage";
-  toast.className = "toast";
-  toastContainer.appendChild(toast);
-  document.body.appendChild(toastContainer);
 
-  function showToast(message, type = "success") {
-    toast.innerText = message;
-    toast.className = `toast show ${type}`;
-    setTimeout(() => {
-      toast.className = "toast";
-    }, 3000);
-  }
 
   // -----------------------------
   // Search Filter
@@ -261,15 +243,16 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-    const toasts = document.querySelectorAll(".toast");
-    toasts.forEach((toast, index) => {
-        // Delay each toast slightly if you want staggered appearance
-        toast.style.animationDelay = `${index * 0.2}s`;
+// DISABLED - Toast auto-hide
+// document.addEventListener("DOMContentLoaded", () => {
+//     const toasts = document.querySelectorAll(".toast");
+//     toasts.forEach((toast, index) => {
+//         // Delay each toast slightly if you want staggered appearance
+//         toast.style.animationDelay = `${index * 0.2}s`;
 
-        // Remove each toast after animation (4s)
-        toast.addEventListener("animationend", () => {
-            toast.remove();
-        });
-    });
-});
+//         // Remove each toast after animation (4s)
+//         toast.addEventListener("animationend", () => {
+//             toast.remove();
+//         });
+//     });
+// });

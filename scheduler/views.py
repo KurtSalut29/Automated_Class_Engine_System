@@ -322,8 +322,6 @@ def delete_section(request, section_id):
         messages.success(request, f"Section {section.section_name} has been deleted.")
         return redirect("manage_sections")
 
-    # fallback just in case
-    messages.error(request, "Invalid request.")
     return redirect("manage_sections")
 
 # ---------------- USER MANAGEMENT (ADMIN) ----------------
@@ -335,6 +333,8 @@ def manage_users(request):
     if not request.user.is_admin():
         messages.error(request, "Access denied.")
         return redirect('home_redirect')
+    
+
 
     if request.method == "POST":
         action = request.POST.get("action")
@@ -354,34 +354,35 @@ def manage_users(request):
                 messages.error(request, "Invalid user ID.")
             return redirect('manage_users')
         
-        # Handle bulk actions
+        # Handle bulk actions (only if action is provided)
         user_ids = request.POST.getlist("user_ids")
-        users = User.objects.filter(id__in=user_ids)
-
-        if not action:
-            messages.error(request, "Please select a bulk action.")
-        elif not users.exists():
-            messages.error(request, "Please select at least one user.")
-        else:
-            if action == 'activate':
-                users.update(is_active=True)
-                messages.success(request, f"{users.count()} user(s) activated.")
+        
+        if action:  # Only process if an action was actually selected
+            users = User.objects.filter(id__in=user_ids)
             
-            elif action == 'deactivate':
-                users.update(is_active=False)
-                messages.success(request, f"{users.count()} user(s) deactivated.")
-
-            elif action == 'approve':
-                users.update(is_approved=True)
-                messages.success(request, f"{users.count()} user(s) approved.")
-
-            elif action == 'delete':
-                count = users.count()
-                users.delete()
-                messages.success(request, f"{count} user(s) deleted.")
-
+            if not user_ids:  # Check if any user IDs were selected
+                messages.error(request, "Please select at least one user.")
             else:
-                messages.error(request, "Invalid bulk action.")
+                user_details = [f"{u.first_name} {u.last_name} ({u.role.title()})" for u in users]
+                
+                if action == 'activate':
+                    users.update(is_active=True)
+                    messages.success(request, f"Activated: {', '.join(user_details)}")
+                
+                elif action == 'deactivate':
+                    users.update(is_active=False)
+                    messages.success(request, f"Deactivated: {', '.join(user_details)}")
+
+                elif action == 'approve':
+                    users.update(is_approved=True)
+                    messages.success(request, f"Approved: {', '.join(user_details)}")
+
+                elif action == 'delete':
+                    messages.success(request, f"Deleted: {', '.join(user_details)}")
+                    users.delete()
+
+                else:
+                    messages.error(request, "Invalid bulk action.")
 
         return redirect('manage_users')
 
@@ -459,15 +460,6 @@ def view_user_profile(request, user_id):
         'view_user': user
     })
 
-@login_required
-def view_user_profile(request, user_id):
-    if not request.user.is_admin():
-        messages.error(request, "Access denied.")
-        return redirect('home_redirect')
-
-    user = get_object_or_404(User, id=user_id)
-    return render(request, 'scheduler/admin/view_user.html', {'user': user})
-
 def add_user(request):
     if not request.user.is_admin():
         messages.error(request, "Access denied.")
@@ -534,50 +526,7 @@ def edit_user(request, user_id):
 
     return render(request, 'scheduler/admin/edit_user.html', {'form': form, 'user': user})
 
-@login_required
-def approve_user(request, user_id):
-    if not request.user.is_admin():
-        messages.error(request, "Access denied.")
-        return redirect('home_redirect')
 
-    user = get_object_or_404(User, id=user_id)
-    user.is_approved = True
-    user.is_active = True
-    user.save()
-    messages.success(request, f"{user.username} has been approved and activated.")
-    return redirect('manage_users')
-
-def activate_user(request, user_id):
-    if not request.user.is_admin():
-        messages.error(request, "Access denied.")
-        return redirect('home_redirect')
-
-    user = get_object_or_404(User, id=user_id)
-    user.is_active = True
-    user.save()
-    messages.success(request, f"{user.username}'s account has been activated.")
-    return redirect('manage_users')
-
-
-@login_required
-def deactivate_user(request, user_id):
-    if not request.user.is_admin():
-        messages.error(request, "Access denied.")
-        return redirect('home_redirect')
-
-    user = get_object_or_404(User, id=user_id)
-    user.is_active = False
-    user.save()
-    messages.info(request, f"{user.username}'s account has been deactivated.")
-    return redirect('manage_users')
-
-def view_user_profile(request, user_id):
-    if not request.user.is_admin():
-        messages.error(request, "Access denied.")
-        return redirect('home_redirect')
-
-    user = get_object_or_404(User, id=user_id)
-    return render(request, 'scheduler/admin/view_user.html', {'user': user})
 
 @login_required
 def delete_user(request, user_id):
