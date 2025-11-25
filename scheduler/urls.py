@@ -49,6 +49,7 @@ urlpatterns = [
     # SECTION MANAGEMENT
     # ==============================
     path('admin/sections/', views.manage_sections, name='manage_sections'),
+    path('admin/sections/department/<int:department_id>/', views.manage_sections, name='manage_sections_by_department'),
     path('admin/sections/edit/<int:section_id>/', views.edit_section, name='edit_section'),
     path('admin/sections/delete/<int:section_id>/', views.delete_section, name='delete_section'),
 

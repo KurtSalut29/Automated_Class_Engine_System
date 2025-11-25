@@ -762,7 +762,7 @@ button[type="submit"]:hover,
 }
 
 .modal.show {
-  display: flex;
+  display: flex !important;
   animation: fadeIn 0.3s ease;
 }
 
@@ -866,6 +866,26 @@ button[type="submit"]:hover,
 
 .modal-body::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.btn-confirm-delete {
+  background: var(--accent-danger);
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(231, 74, 59, 0.3);
+}
+
+.btn-confirm-delete:hover {
+  background: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(231, 74, 59, 0.4);
 }
 
 /* ===============================

@@ -598,20 +598,40 @@ def manage_sections(request):
     from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
     
     departments = Department.objects.all()
+    selected_department_id = request.GET.get('department')
+    selected_department = Department.objects.filter(id=selected_department_id).first() if selected_department_id else None
     page_number = request.GET.get('page', 1)
     
-    # Get all sections with pagination
-    sections_list = Section.objects.select_related('course', 'course__department').all().order_by('course__department__name', 'course__course_name', 'section_name')
+    # Initialize variables
+    sections_by_course = {}
+    paginator_obj = None
     
-    # Apply pagination - 10 sections per page
-    paginator = Paginator(sections_list, 10)
-    
-    try:
-        sections = paginator.page(page_number)
-    except PageNotAnInteger:
-        sections = paginator.page(1)
-    except EmptyPage:
-        sections = paginator.page(paginator.num_pages)
+    if selected_department:
+        # Get sections for selected department grouped by course
+        sections_list = Section.objects.select_related('course', 'course__department').filter(
+            course__department=selected_department
+        ).order_by('course__course_name', 'section_name')
+        
+        # Group sections by course
+        from itertools import groupby
+        sections_grouped = {}
+        for course, course_sections in groupby(sections_list, key=lambda x: x.course):
+            sections_grouped[course] = list(course_sections)
+        
+        # Apply pagination to each course (6 sections per page per course)
+        for course, course_sections in sections_grouped.items():
+            paginator = Paginator(course_sections, 6)
+            
+            try:
+                paginated_sections = paginator.page(page_number)
+            except PageNotAnInteger:
+                paginated_sections = paginator.page(1)
+            except EmptyPage:
+                paginated_sections = paginator.page(paginator.num_pages)
+            
+            sections_by_course[course] = paginated_sections
+            if not paginator_obj:  # Use first course's paginator for navigation
+                paginator_obj = paginated_sections
 
     if request.method == 'POST':
         print(f"DEBUG: POST request received with data: {dict(request.POST)}")
@@ -687,8 +707,9 @@ def manage_sections(request):
     
     return render(request, 'scheduler/admin/manage_sections.html', {
         'departments': departments,
-        'sections': sections,
-        'paginator': sections,
+        'selected_department': selected_department,
+        'sections_by_course': sections_by_course,
+        'paginator': paginator_obj,
     })
 
 

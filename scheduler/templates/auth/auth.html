@@ -335,12 +335,13 @@
       // ===== AUTO-HIDE MESSAGES =====
       const messages = document.querySelectorAll(".message");
       if (messages.length > 0) {
+        // Wait for splash screen to finish (6 seconds) + show message for 8 seconds
         setTimeout(() => {
           messages.forEach(msg => {
             msg.style.animation = "slideOut 0.5s ease forwards";
             setTimeout(() => msg.remove(), 500);
           });
-        }, 5000);
+        }, 20000); // 6s splash + 8s message display
       }
     });
   </script>
