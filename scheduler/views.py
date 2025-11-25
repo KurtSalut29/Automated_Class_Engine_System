@@ -366,16 +366,31 @@ def manage_users(request):
                 user_details = [f"{u.first_name} {u.last_name} ({u.role.title()})" for u in users]
                 
                 if action == 'activate':
-                    users.update(is_active=True)
-                    messages.success(request, f"Activated: {', '.join(user_details)}")
+                    inactive_users = users.filter(is_active=False)
+                    if inactive_users.exists():
+                        inactive_details = [f"{u.first_name} {u.last_name} ({u.role.title()})" for u in inactive_users]
+                        inactive_users.update(is_active=True)
+                        messages.success(request, f"Activated: {', '.join(inactive_details)}")
+                    else:
+                        messages.info(request, "No inactive users selected to activate.")
                 
                 elif action == 'deactivate':
-                    users.update(is_active=False)
-                    messages.success(request, f"Deactivated: {', '.join(user_details)}")
+                    active_users = users.filter(is_active=True)
+                    if active_users.exists():
+                        active_details = [f"{u.first_name} {u.last_name} ({u.role.title()})" for u in active_users]
+                        active_users.update(is_active=False)
+                        messages.success(request, f"Deactivated: {', '.join(active_details)}")
+                    else:
+                        messages.info(request, "No active users selected to deactivate.")
 
                 elif action == 'approve':
-                    users.update(is_approved=True)
-                    messages.success(request, f"Approved: {', '.join(user_details)}")
+                    unapproved_users = users.filter(is_approved=False)
+                    if unapproved_users.exists():
+                        unapproved_details = [f"{u.first_name} {u.last_name} ({u.role.title()})" for u in unapproved_users]
+                        unapproved_users.update(is_approved=True)
+                        messages.success(request, f"Approved: {', '.join(unapproved_details)}")
+                    else:
+                        messages.info(request, "No unapproved users selected to approve.")
 
                 elif action == 'delete':
                     messages.success(request, f"Deleted: {', '.join(user_details)}")
