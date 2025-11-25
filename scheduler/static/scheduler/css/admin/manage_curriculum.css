@@ -536,15 +536,13 @@ button[type="submit"]:hover,
   box-shadow: 0 6px 16px rgba(78, 115, 223, 0.4);
 }
 
-button[type="button"],
 .btn-cancel,
 .cancel {
-  background: #4ade80;
+  background: #e0e0e0;
   color: #333;
   box-shadow: none;
 }
 
-button[type="button"]:hover,
 .btn-cancel:hover,
 .cancel:hover {
   background: #d0d0d0;
