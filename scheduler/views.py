@@ -1351,10 +1351,20 @@ def google_verification(request):
     return HttpResponse('google-site-verification: google409907f111977f19.html')
 
 def sitemap_view(request):
-    from .sitemaps import StaticViewSitemap
-    from django.contrib.sitemaps.views import sitemap
-    sitemaps = {'static': StaticViewSitemap}
-    return sitemap(request, sitemaps)
+    sitemap_xml = '''<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://automated-class-engine-system-1.onrender.com/</loc>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>
+    <url>
+        <loc>https://automated-class-engine-system-1.onrender.com/public/schedule/</loc>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
+    </url>
+</urlset>'''
+    return HttpResponse(sitemap_xml, content_type='application/xml')
 
 def robots_txt(request):
     lines = [

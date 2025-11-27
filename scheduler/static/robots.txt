@@ -3,4 +3,4 @@ Allow: /
 Allow: /public/schedule/
 Disallow: /admin/
 Disallow: /instructor/
-Sitemap: https://your-render-app.onrender.com/sitemap.xml
+Sitemap: https://automated-class-engine-system-1.onrender.com/sitemap.xml
