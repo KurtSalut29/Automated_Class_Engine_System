@@ -102,7 +102,7 @@ urlpatterns = [
     path('api/room-schedule/<int:room_id>/', views.room_schedule_api, name='room_schedule_api'),
     path('check-room-availability/', views.check_room_availability, name='check_room_availability'),
     path('google409907f111977f19.html', views.google_verification, name='google_verification'),
-    path('sitemap.xml', views.sitemap_view, name='sitemap'),
+    path('sitemap.xml/', views.sitemap_view, name='sitemap'),
     path('robots.txt', views.robots_txt, name='robots_txt'),
 
 ]
