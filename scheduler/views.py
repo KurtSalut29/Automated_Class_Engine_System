@@ -30,6 +30,7 @@ from scheduler.models import User, Instructor, Department
 from django.http import JsonResponse
 import json
 from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
 
 def get_available_times(room):
     """Get available time slots for a room"""
@@ -1345,6 +1346,26 @@ def check_room_availability(request):
         return JsonResponse({'available': False, 'error': 'Room not found'})
     except Exception as e:
         return JsonResponse({'available': False, 'error': str(e)})
+
+def google_verification(request):
+    return HttpResponse('google-site-verification: google409907f111977f19.html')
+
+def sitemap_view(request):
+    from .sitemaps import StaticViewSitemap
+    from django.contrib.sitemaps.views import sitemap
+    sitemaps = {'static': StaticViewSitemap}
+    return sitemap(request, sitemaps)
+
+def robots_txt(request):
+    lines = [
+        "User-agent: *",
+        "Allow: /",
+        "Allow: /public/schedule/",
+        "Disallow: /admin/",
+        "Disallow: /instructor/",
+        f"Sitemap: {request.build_absolute_uri('/sitemap.xml')}",
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain")
 
 # Edit room
 def edit_room(request, room_id):

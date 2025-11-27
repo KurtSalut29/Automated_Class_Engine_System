@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Allow: /public/schedule/
+Disallow: /admin/
+Disallow: /instructor/
+Sitemap: https://your-render-app.onrender.com/sitemap.xml
